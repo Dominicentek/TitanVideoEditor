@@ -1,25 +1,42 @@
-#include <iostream>
-#include <GL/glut.h>
+#include <SDL2/SDL.h>
+#include <chrono>
+#include <thread>
 
-#define WINDOW_WIDTH 1270
-#define WINDOW_HEIGHT 768
+int mouseX;
+int mouseY;
 
-void update() {
-    
+bool mousePressed;
+bool mouseDown;
+bool mousePrevDown;
+
+bool update() {
+    mouseDown = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON_LMASK;
+    mousePressed = !mousePrevDown && mouseDown;
+    mousePrevDown = mouseDown;
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0) {
+        if (event.type == SDL_QUIT) {
+            return true;
+        }
+    }
+    return false;
 }
 void render() {
-    update();
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    glFlush();
+
 }
 int main(int argc, char** argv) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE);
-    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    glutInitWindowPosition(GLUT_SCREEN_WIDTH / 2 - WINDOW_WIDTH / 2, GLUT_SCREEN_HEIGHT / 2 - WINDOW_HEIGHT / 2);
-    glutCreateWindow("Titan");
-    glutDisplayFunc(render);
-    glutMainLoop();
+    SDL_Window* window = SDL_CreateWindow("Titan", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 854, 480, 0);
+    Uint32 render_flags = SDL_RENDERER_ACCELERATED;
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, render_flags);
+    while (true) {
+        clock_t before = clock();
+        if (update()) break;
+        render();
+        clock_t after = clock();
+        if (after - before < CLOCKS_PER_SEC / 60) std::this_thread::sleep_for(std::chrono::microseconds((int)(1000000 / 60.0f - (float)(after - before) / CLOCKS_PER_SEC * 1000000)));
+    }
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
     return 0;
 }

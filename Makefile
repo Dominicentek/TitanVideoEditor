@@ -6,9 +6,9 @@ EXECUTABLE := $(BIN_DIR)/titan
 
 SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-CFLAGS := -Wall
+CFLAGS := -Wall -g
 LDFLAGS :=
-OPENGL :=  -lGL -lGLU -lglut
+LIBS := -lGL -lGLU -lSDL2main -lSDL2
 
 .PHONY: all clean
 
@@ -16,11 +16,11 @@ all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(LDFLAGS) -o $@ $^ $(OPENGL)
+	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ $(OPENGL)
+	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
 
 clean:
 	rm -rf $(BIN_DIR)
