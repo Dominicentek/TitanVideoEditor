@@ -6,7 +6,7 @@ EXECUTABLE := $(BIN_DIR)/titan
 
 SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-CFLAGS := -Wall -g
+CFLAGS := -Wall -g -I src
 LDFLAGS :=
 LIBS := -lGL -lGLU -lSDL2main -lSDL2
 
