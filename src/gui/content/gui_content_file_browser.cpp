@@ -1,0 +1,72 @@
+#include "gui/render_util.h"
+#include "gui/lib/icons.h"
+#include "main.h"
+
+#include <vector>
+#include <string>
+#include <filesystem>
+#include <algorithm>
+
+std::vector<std::filesystem::path> get_path(std::filesystem::path path) {
+    std::vector<std::filesystem::path> dirs = {};
+    path = std::filesystem::absolute(path);
+    std::filesystem::path prev_path;
+    printf((path.string() + "\n").c_str());
+    while (prev_path != path) {
+        dirs.insert(dirs.begin(), std::filesystem::absolute(path));
+        prev_path = path;
+        path = path.parent_path();
+    }
+    return dirs;
+}
+
+std::vector<std::filesystem::path> dir_stack = {};
+int scroll = 0;
+
+bool string_comparator(std::string a, std::string b) {
+    if (a == "../") return true;
+    if (b == "../") return false;
+    return a < b;
+}
+
+void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h) {
+    if (dir_stack.empty()) dir_stack = get_path(std::filesystem::current_path());
+    std::vector<std::string> files = {};
+    std::vector<std::string> dirs = {};
+    if (dir_stack.size() > 1) dirs.push_back("../");
+    for (auto file : std::filesystem::directory_iterator(dir_stack[dir_stack.size() - 1])) {
+        if (!std::filesystem::is_directory(file)) continue;
+        dirs.push_back(file.path().filename().string() + "/");
+    }
+    for (auto file : std::filesystem::directory_iterator(dir_stack[dir_stack.size() - 1])) {
+        if (std::filesystem::is_directory(file)) continue;
+        files.push_back(file.path().filename().string());
+    }
+    std::sort(dirs.begin(), dirs.end(), string_comparator);
+    std::sort(files.begin(), files.end(), string_comparator);
+    std::reverse(dirs.begin(), dirs.end());
+    for (std::string dir : dirs) {
+        files.insert(files.begin(), dir);
+    }
+    int height = files.size() * 20 + 4;
+    scroll += mouseScroll * 20;
+    if (scroll > height - h) scroll = height - h;
+    if (scroll < 0) scroll = 0;
+    for (int i = 0; i < files.size(); i++) {
+        bool is_dir = files[i][files[i].size() - 1] == '/';
+        SDL_Texture* tex = is_dir ? icon_folder : icon_file;
+        if (files[i] == "../") tex = icon_up_dir;
+        if (mouseX >= x && mouseY >= y + 2 + i * 20 - scroll && mouseX < x + w && mouseY < y + 2 + (i + 1) * 20 - scroll) {
+            render_rect(renderer, 0, 2 + i * 20 - scroll, w, 20, 0x303030FF);
+            if (mousePressed) {
+                if (is_dir) {
+                    if (files[i] == "../") dir_stack.pop_back();
+                    else dir_stack.push_back(dir_stack[dir_stack.size() - 1] / files[i]);
+                    scroll = 0;
+                }
+            }
+        }
+        render_texture(renderer, tex, 4, i * 20 + 4 - scroll, 16, 16);
+        render_text(renderer, 24, 7 + i * 20 - scroll, files[i]);
+    }
+}

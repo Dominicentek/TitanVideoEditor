@@ -1,7 +1,8 @@
 #include "gui_layout.h"
 #include "main.h"
 #include "render_util.h"
-#include "cursors.h"
+#include "gui/lib/cursors.h"
+#include "gui/lib/icons.h"
 
 #include <vector>
 #include <map>
@@ -22,7 +23,17 @@ void render_gui(SDL_Renderer* renderer) {
         if (*section.y1 != 0 && *section.y1 != 1) y1 += 2.5f;
         if (*section.x2 != 0 && *section.x2 != 1) x2 -= 2.5f;
         if (*section.y2 != 0 && *section.y2 != 1) y2 -= 2.5f;
-        render_rect(renderer, (int)x1 + 5, (int)y1 + 5, (int)(x2 - x1), (int)(y2 - y1), 0x202020FF);
+        SDL_Rect rect;
+        rect.x = (int)x1 + 5;
+        rect.y = (int)y1 + 5;
+        rect.w = (int)(x2 - x1);
+        rect.h = (int)(y2 - y1);
+        SDL_RenderSetClipRect(renderer, &rect);
+        render_translate(rect.x, rect.y);
+        render_rect(renderer, 0, 0, rect.w, rect.h, 0x202020FF);
+        section.render(renderer, rect.x, rect.y, rect.w, rect.h);
+        reset_translation();
+        SDL_RenderSetClipRect(renderer, nullptr);
     }
     if (!mouseDown) grabbedSplitter = nullptr;
     if (grabbedSplitter != nullptr) {

@@ -4,10 +4,12 @@
 #include <iostream>
 
 #include "gui/gui_layout.h"
-#include "gui/cursors.h"
+#include "gui/lib/cursors.h"
+#include "gui/lib/icons.h"
 
 int mouseX;
 int mouseY;
+int mouseScroll;
 
 bool mousePressed;
 bool mouseDown;
@@ -26,9 +28,11 @@ bool update() {
     mousePrevDown = mouseDown;
     SDL_GetWindowSize(currentWindow, &windowWidth, &windowHeight);
     SDL_Event event;
+    mouseScroll = 0;
     while (SDL_PollEvent(&event) != 0) {
-        if (event.type == SDL_QUIT) {
-            return true;
+        if (event.type == SDL_QUIT) return true;
+        if (event.type == SDL_MOUSEWHEEL) {
+            mouseScroll = -event.wheel.y;
         }
     }
     return false;
@@ -37,12 +41,14 @@ void render(SDL_Renderer* renderer) {
     render_gui(renderer);
 }
 int main(int argc, char** argv) {
-    SDL_Window* window = SDL_CreateWindow("Titan", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 854, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 854, 480, 0);
     SDL_SetWindowResizable(window, SDL_TRUE);
     currentWindow = window;
     Uint32 render_flags = SDL_RENDERER_ACCELERATED;
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, render_flags);
     init_cursors();
+    init_icons(renderer);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     while (true) {
         clock_t before = clock();
         if (update()) break;

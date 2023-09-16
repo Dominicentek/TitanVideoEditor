@@ -10,7 +10,7 @@
 #define CONST(value) new float(value)
 
 struct GuiLayoutSection {
-    void (*id)(SDL_Renderer*, int, int, int, int);
+    void (*render)(SDL_Renderer*, int, int, int, int);
     float* x1;
     float* y1;
     float* x2;

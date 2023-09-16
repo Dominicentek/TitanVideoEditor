@@ -7,6 +7,7 @@ extern int mouseX;
 extern int mouseY;
 extern bool mousePressed;
 extern bool mouseDown;
+extern int mouseScroll;
 
 extern SDL_Window* currentWindow;
 extern int windowWidth;
