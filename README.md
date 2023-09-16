@@ -4,3 +4,4 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 ### Dependencies
 * SDL2
 * OpenGL
+* FFmpeg
