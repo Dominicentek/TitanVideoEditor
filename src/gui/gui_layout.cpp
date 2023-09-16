@@ -29,6 +29,17 @@ void render_gui(SDL_Renderer* renderer) {
         if (grabbedSplitter->isVertical) *grabbedSplitter->pos = (mouseY - 5) / (float)(windowHeight - 10);
         else *grabbedSplitter->pos = (mouseX - 5) / (float)(windowWidth - 10);
         next_cursor = grabbedSplitter->isVertical ? cursor_move_vertical : cursor_move_horizontal;
+        float limitMin, limitMax;
+        if (grabbedSplitter->isVertical) {
+            limitMin = *grabbedSplitter->valueMin + 10.0f / (windowHeight - 10);
+            limitMax = *grabbedSplitter->valueMax - 10.0f / (windowHeight - 10);
+        }
+        else {
+            limitMin = *grabbedSplitter->valueMin + 10.0f / (windowWidth - 10);
+            limitMax = *grabbedSplitter->valueMax - 10.0f / (windowWidth - 10);
+        }
+        if (*grabbedSplitter->pos < limitMin) *grabbedSplitter->pos = limitMin;
+        if (*grabbedSplitter->pos > limitMax) *grabbedSplitter->pos = limitMax;
     }
     for (int i = 0; i < sizeof(gui_splitters) / sizeof(GuiLayoutSplitter); i++) {
         GuiLayoutSplitter splitter = gui_splitters[i];
