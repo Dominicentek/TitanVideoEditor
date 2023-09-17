@@ -19,7 +19,7 @@ public class ImageToC {
         icons_h.write(("#ifndef Icons_H\n#define Icons_H\n\n#include <SDL2/SDL.h>" + header).getBytes());
         cursors_h.write(("#ifndef Cursors_H\n#define Cursors_H\n\n#include <SDL2/SDL.h>" + header).getBytes());
         icons_cpp.write(("#include \"icons.h\"\n#include \"images.h\"" + header).getBytes());
-        cursors_cpp.write(("#include \"cursors.h\"" + header).getBytes());
+        cursors_cpp.write(("#include \"cursors.h\"\n#include \"images.h\"" + header).getBytes());
         HashMap<String, BufferedImage> images = new HashMap<>();
         HashMap<String, BufferedImage> cursors = new HashMap<>();
         HashMap<String, String> systemCursors = new HashMap<>();
@@ -47,7 +47,7 @@ public class ImageToC {
             cursors_cpp.write(("SDL_Cursor* cursor_" + name + " = nullptr;\n").getBytes());
         }
         icons_cpp.write("\nSDL_Texture* create_texture(SDL_Renderer* renderer, unsigned int* data, int width, int height) {\n    SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(data, width, height, 32, width * 4, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);\n    return SDL_CreateTextureFromSurface(renderer, surface);\n}\n\nvoid init_icons(SDL_Renderer* renderer) {\n".getBytes());
-        cursors_cpp.write("\nvoid init_cursors() {\n    cursor_default = SDL_GetDefaultCursor();\n".getBytes());
+        cursors_cpp.write("\nSDL_Surface* create_surface(unsigned int* data, int width, int height) {\n    return SDL_CreateRGBSurfaceFrom(data, width, height, 32, width * 4, 0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);\n}\n\nvoid init_cursors() {\n    cursor_default = SDL_GetDefaultCursor();\n".getBytes());
         for (String name : images.keySet()) {
             BufferedImage img = images.get(name);
             icons_cpp.write(("   icon_" + name + " = create_texture(renderer, icon_" + name + "_data, " + img.getWidth() + ", " + img.getHeight() + ");\n").getBytes());
@@ -58,7 +58,7 @@ public class ImageToC {
         for (String cursor : cursors.keySet()) {
             BufferedImage img = cursors.get(cursor);
             addImageData(images_h, "cursor_" + cursor + "_data", img);
-            // todo
+            cursors_cpp.write(("    cursor_" + cursor + " = SDL_CreateColorCursor(create_surface(cursor_" + cursor + "_data, " + img.getWidth() + ", " + img.getHeight() + "), " + (img.getWidth() / 2) + ", " + (img.getHeight() / 2) + ");\n").getBytes());
         }
         images_h.write("#endif".getBytes());
         icons_h.write("\nextern void init_icons(SDL_Renderer* renderer);\n\n#endif".getBytes());
