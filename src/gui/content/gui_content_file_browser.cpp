@@ -11,7 +11,6 @@ std::vector<std::filesystem::path> get_path(std::filesystem::path path) {
     std::vector<std::filesystem::path> dirs = {};
     path = std::filesystem::absolute(path);
     std::filesystem::path prev_path;
-    printf((path.string() + "\n").c_str());
     while (prev_path != path) {
         dirs.insert(dirs.begin(), std::filesystem::absolute(path));
         prev_path = path;
@@ -22,12 +21,6 @@ std::vector<std::filesystem::path> get_path(std::filesystem::path path) {
 
 std::vector<std::filesystem::path> dir_stack = {};
 int scroll = 0;
-
-bool string_comparator(std::string a, std::string b) {
-    if (a == "../") return true;
-    if (b == "../") return false;
-    return a < b;
-}
 
 void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h) {
     if (dir_stack.empty()) dir_stack = get_path(std::filesystem::current_path());
@@ -42,6 +35,11 @@ void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h
         if (std::filesystem::is_directory(file)) continue;
         files.push_back(file.path().filename().string());
     }
+    auto string_comparator = [](std::string a, std::string b) {
+        if (a == "../") return true;
+        if (b == "../") return false;
+        return a < b;
+    };
     std::sort(dirs.begin(), dirs.end(), string_comparator);
     std::sort(files.begin(), files.end(), string_comparator);
     std::reverse(dirs.begin(), dirs.end());
@@ -49,7 +47,7 @@ void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h
         files.insert(files.begin(), dir);
     }
     int height = files.size() * 20 + 4;
-    scroll += mouseScroll * 20;
+    if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + h) scroll += mouseScroll * 20;
     if (scroll > height - h) scroll = height - h;
     if (scroll < 0) scroll = 0;
     for (int i = 0; i < files.size(); i++) {

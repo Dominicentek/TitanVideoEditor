@@ -80,3 +80,36 @@ void render_gui(SDL_Renderer* renderer) {
         }
     }
 }
+
+bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color) {
+    return button_icon(renderer, icon, x, y, w, h, color, false);
+}
+
+bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color, bool locked) {
+    SDL_Rect rect;
+    rect.x = x - 2;
+    rect.y = y - 2;
+    rect.w = w + 4;
+    rect.h = h + 4;
+    int r = (color >> 24) & 0xFF;
+    int g = (color >> 16) & 0xFF;
+    int b = (color >> 8) & 0xFF;
+    int a = color & 0xFF;
+    bool clicked = false;
+    if (mouseX >= x - 2 && mouseY >= y - 2 && mouseX < x + w + 4 && mouseY < y + h + 4 && !locked) {
+        SDL_SetRenderDrawColor(renderer, r, g, b, a);
+        SDL_RenderFillRect(renderer, &rect);
+        if (mousePressed) {
+            mousePressed = false;
+            clicked = true;
+        }
+    }
+    rect.x += 2;
+    rect.y += 2;
+    rect.w -= 4;
+    rect.h -= 4;
+    if (locked) SDL_SetTextureColorMod(icon, 127, 127, 127);
+    SDL_RenderCopy(renderer, icon, nullptr, &rect);
+    SDL_SetTextureColorMod(icon, 255, 255, 255);
+    return clicked;
+}

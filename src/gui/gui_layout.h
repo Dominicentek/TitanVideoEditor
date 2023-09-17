@@ -49,6 +49,8 @@ inline GuiLayoutSplitter gui_splitters[] = {
 extern GuiLayoutSplitter* grabbedSplitter;
 
 extern void render_gui(SDL_Renderer* renderer);
+extern bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color);
+extern bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color, bool locked);
 
 #undef CONST
 

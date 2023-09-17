@@ -66,6 +66,10 @@ public class ImageToC {
         icons_cpp.write("}".getBytes());
         cursors_cpp.write("}".getBytes());
         images_h.close();
+        icons_h.close();
+        icons_cpp.close();
+        cursors_h.close();
+        cursors_cpp.close();
     }
     public static String getNameWithoutExtension(File file) {
         String name = file.getName();

@@ -41,7 +41,7 @@ void render(SDL_Renderer* renderer) {
     render_gui(renderer);
 }
 int main(int argc, char** argv) {
-    SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 854, 480, 0);
+    SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
     SDL_SetWindowResizable(window, SDL_TRUE);
     currentWindow = window;
     Uint32 render_flags = SDL_RENDERER_ACCELERATED;
