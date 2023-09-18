@@ -10,7 +10,7 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 ### Windows
 1. Download [MSYS2](https://www.msys2.org/)
 2. Install it
-3. Run the MSYS64 command (or MSYS32 on 32-bit machines)
+3. Run the MSYS64 shell (or MSYS32 on 32-bit machines)
 4. Install dependencies:<br><br>
    ```
    pacman -S make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-i686-glew mingw-w64-x86_64-glew mingw-w64-i686-SDL2 mingw-w64-i686-SDL mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL
