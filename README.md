@@ -8,23 +8,7 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 
 ## Build Instructions
 ### Windows
-1. Download [MSYS2](https://www.msys2.org/)
-2. Install it
-3. Run the **MINGW64** (not UCRT) shell (or MINGW32 on 32-bit machines, untested)
-4. Install dependencies:<br><br>
-   ```
-   pacman -S make git mingw-w64-i686-gcc mingw-w64-x86_64-gcc mingw-w64-i686-glew mingw-w64-x86_64-glew mingw-w64-i686-SDL2 mingw-w64-i686-SDL mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL
-   ```
-5. Clone the repository<br><br>
-   ```
-   git clone https://github.com/Dominicentek/TitanVideoEditor
-   cd TitanVideoEditor
-   ```
-6. Compile<br><br>
-   ```
-   make
-   ```
-7. When it finishes building, you can find the executable at `build/titan.exe`
+* Currently no build instructions. Pull requests are welcome!
 ### Linux (Tested with Ubuntu 23.04)
 1. Install dependencies
    * For Debian based:<br><br>
