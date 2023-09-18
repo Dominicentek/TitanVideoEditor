@@ -15,4 +15,7 @@ extern int windowHeight;
 
 extern SDL_Cursor* next_cursor;
 
+extern bool is_key_pressed(SDL_KeyCode code);
+extern bool is_key_held(SDL_KeyCode code);
+
 #endif

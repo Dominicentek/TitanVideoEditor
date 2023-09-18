@@ -8,7 +8,12 @@ SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
 CFLAGS := -Wall -g -I src
 LDFLAGS :=
-LIBS := -lGL -lGLU -lSDL2main -lSDL2
+LIBS =
+ifeq ($(OS),Windows_NT)
+	LIBS += -static $(shell pkg-config --libs --static sdl2)
+else
+	LIBS += -lSDL2 -lSDL2main
+endif
 
 .PHONY: all clean
 
@@ -20,7 +25,7 @@ $(EXECUTABLE): $(OBJS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@ $(LIBS)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(BIN_DIR)

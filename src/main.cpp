@@ -2,6 +2,8 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 
 #include "gui/gui_layout.h"
 #include "gui/lib/cursors.h"
@@ -20,6 +22,9 @@ int windowWidth;
 int windowHeight;
 
 SDL_Cursor* next_cursor = nullptr;
+
+std::vector<SDL_KeyCode> heldKeys = {};
+std::vector<SDL_KeyCode> pressedKeys = {};
 
 bool update() {
     next_cursor = cursor_default;
@@ -62,4 +67,12 @@ int main(int argc, char** argv) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
+}
+
+bool is_key_pressed(SDL_KeyCode code) {
+    return std::find(pressedKeys.begin(), pressedKeys.end(), code) != pressedKeys.end();
+}
+
+bool is_key_held(SDL_KeyCode code) {
+    return std::find(heldKeys.begin(), heldKeys.end(), code) != heldKeys.end();
 }
