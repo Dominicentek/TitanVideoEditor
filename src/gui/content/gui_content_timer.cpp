@@ -6,6 +6,8 @@
 
 #include <iostream>
 
+int timer_scroll;
+
 std::string pad(char character, int count, std::string str) {
     int padCount = count - str.size();
     std::string out = "";
@@ -41,22 +43,26 @@ void gui_content_timer(SDL_Renderer* renderer, int x, int y, int w, int h) {
     if (button_icon(renderer, timeline_locking ? icon_magnet : icon_no_magnet, x + 4 + 20 + 4 + 20 + 4, y + 4, 16, 16, 0x404040FF)) {
         timeline_locking = !timeline_locking;
     }
-    for (int i = 0; i < tracks.size(); i++) {
-        render_rect(renderer, 2, 24 + i * 32 + 2, w - 4, 28, 0x303030FF);
-        render_texture(renderer, tracks[i].type == TRACKTYPE_AUDIO ? icon_sound : icon_video, 9, 24 + i * 32 + 7, 16, 16);
-        if (button_icon(renderer, icon_remove, x + w - 9 - 20, y + 24 + i * 32 + 7, 16, 16, 0x404040FF)) {
+    for (int i = timer_scroll; i < tracks.size(); i++) {
+        render_rect(renderer, 2, 24 + (i - timer_scroll) * 32 + 2, w - 4, 28, 0x303030FF);
+        render_texture(renderer, tracks[i].type == TRACKTYPE_AUDIO ? icon_sound : icon_video, 9, 24 + (i - timer_scroll) * 32 + 7, 16, 16);
+        if (button_icon(renderer, icon_remove, x + w - 9 - 20, y + 24 + (i - timer_scroll) * 32 + 7, 16, 16, 0x404040FF)) {
             tracks.erase(tracks.begin() + i);
             i--;
         }
-        if (button_icon(renderer, icon_up, x + w - 9 - 20 - 4 - 20, y + 24 + i * 32 + 7, 16, 16, 0x404040FF, i == 0)) {
+        if (button_icon(renderer, icon_up, x + w - 9 - 20 - 4 - 20, y + 24 + (i - timer_scroll) * 32 + 7, 16, 16, 0x404040FF, i == 0)) {
             Track temp = tracks[i];
             tracks[i] = tracks[i - 1];
             tracks[i - 1] = temp;
         }
-        if (button_icon(renderer, icon_down, x + w - 9 - 20 - 4 - 20 - 4 - 20, y + 24 + i * 32 + 7, 16, 16, 0x404040FF, i == tracks.size() - 1)) {
+        if (button_icon(renderer, icon_down, x + w - 9 - 20 - 4 - 20 - 4 - 20, y + 24 + (i - timer_scroll) * 32 + 7, 16, 16, 0x404040FF, i == tracks.size() - 1)) {
             Track temp = tracks[i];
             tracks[i] = tracks[i + 1];
             tracks[i + 1] = temp;
         }
     }
+    int numTracks = (h - 24) / 32;
+    if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + h) timer_scroll += mouseScroll;
+    if (timer_scroll > (int)tracks.size() - numTracks) timer_scroll = (int)tracks.size() - numTracks;
+    if (timer_scroll < 0) timer_scroll = 0;
 }

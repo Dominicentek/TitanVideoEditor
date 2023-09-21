@@ -23,8 +23,16 @@ int windowHeight;
 
 SDL_Cursor* next_cursor = nullptr;
 
-std::vector<SDL_KeyCode> heldKeys = {};
-std::vector<SDL_KeyCode> pressedKeys = {};
+std::vector<SDL_Keycode> heldKeys = {};
+std::vector<SDL_Keycode> pressedKeys = {};
+
+bool is_key_pressed(SDL_Keycode code) {
+    return std::find(pressedKeys.begin(), pressedKeys.end(), code) != pressedKeys.end();
+}
+
+bool is_key_held(SDL_Keycode code) {
+    return std::find(heldKeys.begin(), heldKeys.end(), code) != heldKeys.end();
+}
 
 bool update() {
     next_cursor = cursor_default;
@@ -34,17 +42,29 @@ bool update() {
     SDL_GetWindowSize(currentWindow, &windowWidth, &windowHeight);
     SDL_Event event;
     mouseScroll = 0;
+    pressedKeys.clear();
     while (SDL_PollEvent(&event) != 0) {
         if (event.type == SDL_QUIT) return true;
-        if (event.type == SDL_MOUSEWHEEL) {
-            mouseScroll = -event.wheel.y;
+        if (event.type == SDL_MOUSEWHEEL) mouseScroll = -event.wheel.y;
+        if (event.type == SDL_KEYDOWN) {
+            SDL_Keycode keycode = event.key.keysym.sym;
+            if (!is_key_held(keycode)) {
+                heldKeys.push_back(keycode);
+                pressedKeys.push_back(keycode);
+            }
+        }
+        if (event.type == SDL_KEYUP) {
+            SDL_Keycode keycode = event.key.keysym.sym;
+            if (is_key_held(keycode)) heldKeys.erase(std::find(heldKeys.begin(), heldKeys.end(), keycode));
         }
     }
     return false;
 }
+
 void render(SDL_Renderer* renderer) {
     render_gui(renderer);
 }
+
 int main(int argc, char** argv) {
     SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
     SDL_SetWindowResizable(window, SDL_TRUE);
@@ -67,12 +87,4 @@ int main(int argc, char** argv) {
     SDL_DestroyWindow(window);
     SDL_Quit();
     return 0;
-}
-
-bool is_key_pressed(SDL_KeyCode code) {
-    return std::find(pressedKeys.begin(), pressedKeys.end(), code) != pressedKeys.end();
-}
-
-bool is_key_held(SDL_KeyCode code) {
-    return std::find(heldKeys.begin(), heldKeys.end(), code) != heldKeys.end();
 }
