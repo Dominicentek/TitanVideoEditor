@@ -1,5 +1,5 @@
-#include "render_util.h"
-#include "gui/lib/icons.h"
+#include "render_util.hpp"
+#include "gui/lib/icons.hpp"
 
 #include <iostream>
 

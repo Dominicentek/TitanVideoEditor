@@ -5,9 +5,9 @@
 #include <vector>
 #include <algorithm>
 
-#include "gui/gui_layout.h"
-#include "gui/lib/cursors.h"
-#include "gui/lib/icons.h"
+#include "gui/gui_layout.hpp"
+#include "gui/lib/cursors.hpp"
+#include "gui/lib/icons.hpp"
 
 int mouseX;
 int mouseY;

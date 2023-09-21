@@ -1,8 +1,8 @@
-#include "gui/render_util.h"
-#include "editor/editor.h"
-#include "gui/gui_layout.h"
-#include "main.h"
-#include "gui/lib/icons.h"
+#include "gui/render_util.hpp"
+#include "editor/editor.hpp"
+#include "gui/gui_layout.hpp"
+#include "main.hpp"
+#include "gui/lib/icons.hpp"
 
 #include <iostream>
 

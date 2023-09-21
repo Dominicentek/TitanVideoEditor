@@ -1,6 +1,6 @@
-#include "gui/render_util.h"
-#include "gui/lib/icons.h"
-#include "main.h"
+#include "gui/render_util.hpp"
+#include "gui/lib/icons.hpp"
+#include "main.hpp"
 
 #include <vector>
 #include <string>

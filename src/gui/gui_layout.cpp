@@ -1,8 +1,8 @@
-#include "gui_layout.h"
-#include "main.h"
-#include "render_util.h"
-#include "gui/lib/cursors.h"
-#include "gui/lib/icons.h"
+#include "gui_layout.hpp"
+#include "main.hpp"
+#include "render_util.hpp"
+#include "gui/lib/cursors.hpp"
+#include "gui/lib/icons.hpp"
 
 #include <vector>
 #include <map>
