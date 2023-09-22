@@ -6,6 +6,14 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 * OpenGL
 * FFmpeg
 
+## Installation
+### Windows
+1. Download the executable from releases or build it from source
+2. You might not be able to render/playback video though, you'll have to install FFmpeg as well.
+3. Run [this](https://cdn.discordapp.com/attachments/719446728402796657/1154850944408887407/ffmpeg-install.bat) .bat file **as administrator** to install it.
+4. You should be good to go
+### For any other OS, follow the build instructions
+
 ## Build Instructions
 ### Windows
 1. Install [MSYS2](https://github.com/msys2/msys2-installer/releases/download/2023-07-18/msys2-x86_64-20230718.exe)
@@ -28,11 +36,11 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 1. Install dependencies
    * For Debian based:<br><br>
      ```
-     sudo apt install git build-essential libglew-dev libsdl2-dev
+     sudo apt install ffmpeg git build-essential libglew-dev libsdl2-dev
      ```
    * For Arch based:<br><br>
      ```
-     sudo pacman -S git make gcc glew sdl2
+     sudo pacman -S ffmpeg git make gcc glew sdl2
      ```
 2. Clone the repository<br><br>
    ```
