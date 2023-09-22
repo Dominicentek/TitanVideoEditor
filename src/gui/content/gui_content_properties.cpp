@@ -40,7 +40,7 @@ int propmode_track_selector(SDL_Renderer* renderer, int x, int y, int w, int h) 
             grabbed_media = current_media_name + "/" + (current_streams[i] == TRACKTYPE_VIDEO ? "v" : "a") + std::to_string(i);
             grabbed_media_type = current_streams[i];
         } 
-        render_rect(renderer, 2, yPos, w - 4, 28, 0x303030FF);
+        render_rect(renderer, 2, yPos - y, w - 4, 28, 0x303030FF);
         render_texture(renderer, current_streams[i] == TRACKTYPE_VIDEO ? icon_video : icon_sound, 8, 30 + i * 32 - properties_scroll, 16, 16);
         render_text(renderer, 32, 32 + i * 32 - properties_scroll, current_streams[i] == TRACKTYPE_VIDEO ? "Video Track" : "Audio Track");
     }
