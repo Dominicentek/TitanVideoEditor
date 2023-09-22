@@ -1,6 +1,12 @@
 #ifndef Main_H
 #define Main_H
 
+#ifdef WINDOWS
+#define NULLFILE " > NUL"
+#else
+#define NULLFILE " 1> /dev/null 2> /dev/null"
+#endif
+
 #include <SDL2/SDL.h>
 
 extern int mouseX;

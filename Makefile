@@ -6,10 +6,11 @@ EXECUTABLE := $(BIN_DIR)/titan
 
 SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
-CFLAGS := -Wall -g -I src
+CFLAGS = -Wall -g -I src
 LDFLAGS :=
 LIBS =
 ifeq ($(OS),Windows_NT)
+	CFLAGS += -D WINDOWS
 	LIBS += -static $(shell pkg-config --libs --static sdl2)
 else
 	LIBS += -lSDL2 -lSDL2main

@@ -27,6 +27,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
     if (scale < 1) scale = 1;
     float spaceBetweenFrames = get_space_between_frames();
     int numFrames = 1 / spaceBetweenFrames * w;
+    grabbed_media_track_index = -1;
     for (int i = timer_scroll; i < tracks.size(); i++) {
         Track track = tracks[i];
         for (int j = 0; j < track.clips.size(); j++) {
@@ -34,9 +35,15 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
             if (clip.pos + clip.duration < position) continue;
             if (clip.pos > position + numFrames) continue;
             render_rect(renderer, (clip.pos - position) * spaceBetweenFrames, 24 + (i - timer_scroll) * 32 + 2, ceil(clip.duration * spaceBetweenFrames), 28, 0x404040FF);
-            render_rect(renderer, (clip.pos - position) * spaceBetweenFrames + 1, 24 + (i - timer_scroll) * 32 + 3, ceil(clip.duration * spaceBetweenFrames) - 2, 26, 0x404040FF);
+            render_rect(renderer, (clip.pos - position) * spaceBetweenFrames + 1, 24 + (i - timer_scroll) * 32 + 3, ceil(clip.duration * spaceBetweenFrames) - 2, 26, 0x505050FF);
         }
         render_rect(renderer, 0, 24 + (i - timer_scroll) * 32 + 31, w, 2, 0x181818FF);
+        if (mouseX >= x && mouseY >= y + 24 + (i - timer_scroll) * 32 && mouseY >= y + 24 && mouseX < x + w && mouseY < y + 24 + (i - timer_scroll) * 32 + 32 && grabbed_media_type == tracks[i].type) {
+            grabbed_media_track_index = i;
+        }
+        if (grabbed_media_track_index == i && mouseDown && grabbed_media != "") {
+            render_rect(renderer, (grabbed_media_position - position) * spaceBetweenFrames, 24 + (i - timer_scroll) * 32 + 2, ceil(current_media_length * spaceBetweenFrames), 28, 0x4040407F);
+        }
     }
     for (int i = 0; i < numFrames; i++) {
         int frame = position + i;
@@ -60,6 +67,8 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
         if (scale > 16 && frame % (30 * 5) != 0) continue;
         render_text(renderer, i * spaceBetweenFrames, 3, std::to_string(frame / 30));
     }
+    grabbed_media_position = round(position + (mouseX - x) / spaceBetweenFrames);
+    if (grabbed_media_position < 0) grabbed_media_position = 0;
     if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + 24 && mousePressed) dragging_frame = true;
     if (dragging_frame) current_frame = round(position + (mouseX - x) / spaceBetweenFrames);
     if (!mouseDown) dragging_frame = false;

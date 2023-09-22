@@ -1,6 +1,7 @@
 #include "gui/render_util.hpp"
 #include "gui/lib/icons.hpp"
 #include "main.hpp"
+#include "gui/gui_content.hpp"
 
 #include <vector>
 #include <string>
@@ -61,6 +62,13 @@ void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h
                     if (files[i] == "../") dir_stack.pop_back();
                     else dir_stack.push_back(dir_stack[dir_stack.size() - 1] / files[i]);
                     file_scroll = 0;
+                }
+                else {
+                    current_media_name = files[i];
+                    properties_change_mode(PROPMODE_TRACK_SELECTOR);
+                    auto metadata = get_media_streams_and_duration(dir_stack[dir_stack.size() - 1] / files[i]);
+                    current_media_length = metadata.first;
+                    current_streams = metadata.second;
                 }
             }
         }

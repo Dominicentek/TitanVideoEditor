@@ -8,7 +8,7 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 
 ## Installation
 ### Windows
-1. Download the executable from releases or build it from source
+1. Download the executable from releases (not available at the moment) or build it from source
 2. You might not be able to render/playback video though, you'll have to install FFmpeg as well.
 3. Run [this](https://cdn.discordapp.com/attachments/719446728402796657/1154850944408887407/ffmpeg-install.bat) .bat file **as administrator** to install it.
 4. You should be good to go

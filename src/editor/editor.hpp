@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <filesystem>
 
 enum KeyframeType {
     KFTYPE_FLOAT,
@@ -93,7 +94,7 @@ struct Clip {
     int duration;
     float fade;
     float speed;
-    std::vector<Filter> filters;
+    std::vector<Filter*> filters;
 };
 
 struct Track {
@@ -104,5 +105,7 @@ struct Track {
 extern std::vector<Track> tracks;
 extern int current_frame;
 extern bool timeline_locking;
+
+extern std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::filesystem::path path);
 
 #endif

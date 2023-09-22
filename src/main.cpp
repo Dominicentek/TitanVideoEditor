@@ -1,3 +1,5 @@
+#include "main.hpp"
+
 #include <SDL2/SDL.h>
 #include <chrono>
 #include <thread>
@@ -8,6 +10,7 @@
 #include "gui/gui_layout.hpp"
 #include "gui/lib/cursors.hpp"
 #include "gui/lib/icons.hpp"
+#include "gui/render_util.hpp"
 
 int mouseX;
 int mouseY;
@@ -25,6 +28,8 @@ SDL_Cursor* next_cursor = nullptr;
 
 std::vector<SDL_Keycode> heldKeys = {};
 std::vector<SDL_Keycode> pressedKeys = {};
+
+bool ffmpegInstalled = true;
 
 bool is_key_pressed(SDL_Keycode code) {
     return std::find(pressedKeys.begin(), pressedKeys.end(), code) != pressedKeys.end();
@@ -65,9 +70,27 @@ void render(SDL_Renderer* renderer) {
     render_gui(renderer);
 }
 
+bool render_ffmpeg_error(SDL_Renderer* renderer) {
+    bool hovered = mouseX >= 102 && mouseY >= 46 && mouseX < 102 + 64 && mouseY < 46 + 16;
+    if (hovered && mousePressed) return true;
+    render_rect(renderer, 0, 0, 171, 67, 0x202020FF);
+    render_text(renderer, 5, 5, "FFmpeg is not installed");
+    render_text(renderer, 5, 24, "Please install FFmpeg");
+    render_rect(renderer, 102, 46, 64, 16, hovered ? 0x404040FF : 0x303030FF);
+    render_text(renderer, 127, 48, "OK");
+    return false;
+}
+
+bool check_ffmpeg() {
+    FILE* cmd = popen("ffmpeg" NULLFILE, "r");
+    int exit = WEXITSTATUS(pclose(cmd));
+    return exit == 1;
+}
+
 int main(int argc, char** argv) {
-    SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
-    SDL_SetWindowResizable(window, SDL_TRUE);
+    if (!check_ffmpeg()) ffmpegInstalled = false;
+    SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ffmpegInstalled ? 1280 : 171, ffmpegInstalled ? 720 : 67, 0);
+    SDL_SetWindowResizable(window, ffmpegInstalled ? SDL_TRUE : SDL_FALSE);
     currentWindow = window;
     Uint32 render_flags = SDL_RENDERER_ACCELERATED;
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, render_flags);
@@ -77,7 +100,8 @@ int main(int argc, char** argv) {
     while (true) {
         clock_t before = clock();
         if (update()) break;
-        render(renderer);
+        if (ffmpegInstalled) render(renderer);
+        else if (render_ffmpeg_error(renderer)) break;
         SDL_SetCursor(next_cursor);
         SDL_RenderPresent(renderer);
         clock_t after = clock();
