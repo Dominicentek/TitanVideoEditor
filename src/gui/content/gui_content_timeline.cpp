@@ -6,6 +6,7 @@
 #include "gui/lib/cursors.hpp"
 
 #include <string>
+#include <iostream>
 
 #define GRAB_TYPE_MOVE 0
 #define GRAB_TYPE_LEFT_MOVE 1
@@ -22,6 +23,8 @@ int grabType = -1;
 int clipGrabOffset = 0;
 int grabbedClipTrackIndex = 0;
 int grabbedClipIndex = 0;
+
+std::vector<int> lock_positions = {};
 
 float map(float x, float srcMin, float srcMax, float dstMin, float dstMax) {
     return (x - srcMin) / (srcMax - srcMin) * (dstMax - dstMin) + dstMin;
@@ -44,6 +47,16 @@ std::string get_clip_display_text(std::string raw, int clipWidth) {
     return display;
 }
 
+int get_locking_position(int pos, int x) {
+    if (!timeline_locking) return pos;
+    float spaceBetweenFrames = get_space_between_frames();
+    for (int i = 0; i < lock_positions.size(); i++) {
+        int timelinePos = lock_positions[i] * spaceBetweenFrames;
+        if (x >= timelinePos - 10 && x < timelinePos + 10) return lock_positions[i];
+    }
+    return pos;
+}
+
 void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
     render_rect(renderer, 0, 0, w, 24, 0x181818FF);
     float spaceBetweenFrames = get_space_between_frames();
@@ -51,6 +64,8 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
     grabbed_media_track_index = -1;
     int mouseFramePos = round(position + (mouseX - x) / spaceBetweenFrames);
     int mouseTrackPos = -1;
+    lock_positions.clear();
+    lock_positions.push_back(current_frame);
     for (int i = timer_scroll; i < tracks.size(); i++) {
         Track track = tracks[i];
         for (int j = 0; j < track.clips.size(); j++) {
@@ -81,6 +96,9 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
             render_rect(renderer, clipX, clipY, grabW, clipH, 0x303030FF);
             render_rect(renderer, clipX + clipW - grabW, clipY, grabW, clipH, 0x303030FF);
             render_text(renderer, clipX + 10, clipY + 8, get_clip_display_text(clip.media, clipW));
+            if (grabbedClipIndex == j && grabbedClipTrackIndex == i) continue;
+            lock_positions.push_back(clip.pos);
+            lock_positions.push_back(clip.pos + clip.duration);
         }
         render_rect(renderer, 0, 24 + (i - timer_scroll) * 32 + 31, w, 2, 0x181818FF);
         if (mouseX >= x && mouseY >= y + 24 + (i - timer_scroll) * 32 && mouseY >= y + 24 && mouseX < x + w && mouseY < y + 24 + (i - timer_scroll) * 32 + 32) {
@@ -133,7 +151,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
         if (grabType == GRAB_TYPE_LEFT_MOVE) {
             next_cursor = cursor_clip_left;
             int prev = grabbedClip->pos;
-            grabbedClip->pos = mouseFramePos;
+            grabbedClip->pos = get_locking_position(mouseFramePos, mouseX - x);
             grabbedClip->trim += grabbedClip->pos - prev;
             grabbedClip->duration -= grabbedClip->pos - prev;
             if (grabbedClip->duration < 1) {
@@ -144,12 +162,13 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
         }
         if (grabType == GRAB_TYPE_RIGHT_MOVE) {
             next_cursor = cursor_clip_right;
-            grabbedClip->duration = mouseFramePos - grabbedClip->pos;
+            grabbedClip->duration = get_locking_position(mouseFramePos, mouseX - x) - grabbedClip->pos;
             if (grabbedClip->duration < 1) grabbedClip->duration = 1;
         }
         if (grabType == GRAB_TYPE_MOVE) {
             next_cursor = cursor_move;
-            grabbedClip->pos = mouseFramePos - clipGrabOffset;
+            grabbedClip->pos = get_locking_position(mouseFramePos - clipGrabOffset, mouseX - clipGrabOffset * spaceBetweenFrames - x);
+            grabbedClip->pos = get_locking_position(grabbedClip->pos + grabbedClip->duration, mouseX + (grabbedClip->duration - clipGrabOffset) * spaceBetweenFrames - x) - grabbedClip->duration;
             if (grabbedClip->pos < 0) grabbedClip->pos = 0;
             if (mouseTrackPos != -1) {
                 if (tracks[grabbedClipTrackIndex].type == tracks[mouseTrackPos].type && grabbedClipTrackIndex != mouseTrackPos) {
