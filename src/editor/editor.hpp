@@ -92,6 +92,7 @@ struct Clip {
     int end_fade;
     int pos;
     int duration;
+    int trim;
     float fade;
     float speed;
     std::vector<Filter*> filters;

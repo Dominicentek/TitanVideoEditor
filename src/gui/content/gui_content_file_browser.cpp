@@ -55,7 +55,8 @@ void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h
         bool is_dir = files[i][files[i].size() - 1] == '/';
         SDL_Texture* tex = is_dir ? icon_folder : icon_file;
         if (files[i] == "../") tex = icon_up_dir;
-        if (mouseX >= x && mouseY >= y + 2 + i * 20 - file_scroll && mouseX < x + w && mouseY < y + 2 + (i + 1) * 20 - file_scroll) {
+        if (mouseX >= x && mouseY >= y + 2 + i * 20 - file_scroll && mouseX < x + w && mouseY < y + 2 + (i + 1) * 20 - file_scroll &&
+            mouseY >= y && mouseY < y + h) {
             render_rect(renderer, 0, 2 + i * 20 - file_scroll, w, 20, 0x303030FF);
             if (mousePressed) {
                 if (is_dir) {

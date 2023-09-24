@@ -50,6 +50,7 @@ int propmode_track_selector(SDL_Renderer* renderer, int x, int y, int w, int h) 
         clip.duration = current_media_length;
         clip.speed = 1;
         clip.fade = 1;
+        clip.trim = 0;
         clip.start_fade = 0;
         clip.end_fade = 0;
         clip.filters = {};
