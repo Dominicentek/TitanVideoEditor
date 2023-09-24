@@ -34,6 +34,16 @@ float get_space_between_frames() {
     return spaceBetweenFrames;
 }
 
+std::string get_clip_display_text(std::string raw, int clipWidth) {
+    int maxChars = (clipWidth - 20) / 7;
+    std::string display = "";
+    for (int i = 0; i < raw.length() && i < maxChars; i++) {
+        if (raw[i] == '/') break;
+        display += raw[i];
+    }
+    return display;
+}
+
 void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
     render_rect(renderer, 0, 0, w, 24, 0x181818FF);
     float spaceBetweenFrames = get_space_between_frames();
@@ -70,6 +80,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
             render_rect(renderer, clipX, clipY, clipW, clipH, 0x404040FF);
             render_rect(renderer, clipX, clipY, grabW, clipH, 0x303030FF);
             render_rect(renderer, clipX + clipW - grabW, clipY, grabW, clipH, 0x303030FF);
+            render_text(renderer, clipX + 10, clipY + 8, get_clip_display_text(clip.media, clipW));
         }
         render_rect(renderer, 0, 24 + (i - timer_scroll) * 32 + 31, w, 2, 0x181818FF);
         if (mouseX >= x && mouseY >= y + 24 + (i - timer_scroll) * 32 && mouseY >= y + 24 && mouseX < x + w && mouseY < y + 24 + (i - timer_scroll) * 32 + 32) {
@@ -147,6 +158,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
                     tracks[grabbedClipTrackIndex].clips.erase(tracks[grabbedClipTrackIndex].clips.begin() + grabbedClipIndex);
                     tracks[mouseTrackPos].clips.push_back(clip);
                     grabbedClipTrackIndex = mouseTrackPos;
+                    grabbedClipIndex = index;
                     grabbedClip = &tracks[mouseTrackPos].clips[index];
                 }
             }
