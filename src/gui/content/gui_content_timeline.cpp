@@ -76,6 +76,12 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
             int clipY = 24 + (i - timer_scroll) * 32 + 2;
             int clipW = ceil(clip.duration * spaceBetweenFrames);
             int clipH = 28;
+            int clipColor = 0x404040FF;
+            int clipGrabColor = 0x303030FF;
+            if (current_clip_track_index == i && current_clip_index == j && properties_current_mode() == PROPMODE_CLIP_SETTINGS) {
+                clipColor = 0x606060FF;
+                clipGrabColor = 0x505050FF;
+            }
             int grabW = std::max(0, std::min(clipW, 5));
             int moveW = std::max(0, clipW - 10);
             int nextGrabType = -1;
@@ -98,9 +104,9 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
                 current_clip_track_index = i;
                 properties_change_mode(PROPMODE_CLIP_SETTINGS);
             }
-            render_rect(renderer, clipX, clipY, clipW, clipH, 0x404040FF);
-            render_rect(renderer, clipX, clipY, grabW, clipH, 0x303030FF);
-            render_rect(renderer, clipX + clipW - grabW, clipY, grabW, clipH, 0x303030FF);
+            render_rect(renderer, clipX, clipY, clipW, clipH, clipColor);
+            render_rect(renderer, clipX, clipY, grabW, clipH, clipGrabColor);
+            render_rect(renderer, clipX + clipW - grabW, clipY, grabW, clipH, clipGrabColor);
             render_text(renderer, clipX + 10, clipY + 8, get_clip_display_text(clip.media, clipW));
             if (grabbedClipIndex == j && grabbedClipTrackIndex == i) continue;
             lock_positions.push_back(clip.pos);
