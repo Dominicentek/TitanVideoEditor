@@ -91,10 +91,12 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
                 grabbedClip = &tracks[i].clips[j];
                 grabType = nextGrabType;
                 clipGrabOffset = mouseFramePos - clip.pos;
-                properties_change_mode(PROPMODE_CLIP_SETTINGS);
+            }
+            if (rightMousePressed && mouseX >= x + clipX && mouseY >= y + clipY && mouseX < x + clipX + clipW && mouseY < y + clipY + clipH) {
                 current_clip = grabbedClip;
                 current_clip_index = j;
                 current_clip_track_index = i;
+                properties_change_mode(PROPMODE_CLIP_SETTINGS);
             }
             render_rect(renderer, clipX, clipY, clipW, clipH, 0x404040FF);
             render_rect(renderer, clipX, clipY, grabW, clipH, 0x303030FF);

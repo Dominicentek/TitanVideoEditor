@@ -19,6 +19,9 @@ int mouseScroll;
 bool mousePressed;
 bool mouseDown;
 bool mousePrevDown;
+bool rightMousePressed;
+bool rightMouseDown;
+bool rightMousePrevDown;
 
 SDL_Window* currentWindow;
 int windowWidth;
@@ -41,9 +44,13 @@ bool is_key_held(SDL_Keycode code) {
 
 bool update() {
     next_cursor = cursor_default;
-    mouseDown = SDL_GetMouseState(&mouseX, &mouseY) & SDL_BUTTON_LMASK;
+    int mouseState = SDL_GetMouseState(&mouseX, &mouseY);
+    mouseDown = mouseState & SDL_BUTTON_LMASK;
     mousePressed = !mousePrevDown && mouseDown;
     mousePrevDown = mouseDown;
+    rightMouseDown = mouseState & SDL_BUTTON_RMASK;
+    rightMousePressed = !rightMousePrevDown && rightMouseDown;
+    rightMousePrevDown = rightMouseDown;
     SDL_GetWindowSize(currentWindow, &windowWidth, &windowHeight);
     SDL_Event event;
     mouseScroll = 0;

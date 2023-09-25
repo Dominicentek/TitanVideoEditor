@@ -13,6 +13,8 @@ extern int mouseX;
 extern int mouseY;
 extern bool mousePressed;
 extern bool mouseDown;
+extern bool rightMousePressed;
+extern bool rightMouseDown;
 extern int mouseScroll;
 
 extern SDL_Window* currentWindow;
