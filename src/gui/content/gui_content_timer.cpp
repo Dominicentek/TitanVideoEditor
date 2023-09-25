@@ -47,6 +47,7 @@ void gui_content_timer(SDL_Renderer* renderer, int x, int y, int w, int h) {
         render_rect(renderer, 2, 24 + (i - timer_scroll) * 32 + 2, w - 4, 28, 0x303030FF);
         render_texture(renderer, tracks[i].type == TRACKTYPE_AUDIO ? icon_sound : icon_video, 9, 24 + (i - timer_scroll) * 32 + 7, 16, 16);
         if (button_icon(renderer, icon_remove, x + w - 9 - 20, y + 24 + (i - timer_scroll) * 32 + 7, 16, 16, 0x404040FF)) {
+            if (i == current_clip_track_index && properties_current_mode() == PROPMODE_CLIP_SETTINGS) properties_change_mode(PROPMODE_NONE_SELECTED);
             tracks.erase(tracks.begin() + i);
             i--;
         }

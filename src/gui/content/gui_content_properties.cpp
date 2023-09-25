@@ -3,11 +3,14 @@
 #include "gui/gui_content.hpp"
 #include "gui/lib/icons.hpp"
 #include "main.hpp"
+#include "gui/gui_layout.hpp"
 
 int current_media_length = 0;
 std::string current_media_name = "";
 std::vector<TrackType> current_streams = {};
-std::vector<Filter*> current_filters = {};
+Clip* current_clip = nullptr;
+int current_clip_track_index = 0;
+int current_clip_index = 0;
 PropertiesMode properties_mode = PROPMODE_NONE_SELECTED;
 
 std::string grabbed_media = "";
@@ -65,6 +68,13 @@ int propmode_track_selector(SDL_Renderer* renderer, int x, int y, int w, int h) 
     return 24 + current_streams.size() * 32;
 }
 
+int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
+    if (button_icon(renderer, icon_remove, x + 4, y + 4, 16, 16, 0x303030FF)) {
+        tracks[current_clip_track_index].clips.erase(tracks[current_clip_track_index].clips.begin() + current_clip_index);
+        properties_change_mode(PROPMODE_NONE_SELECTED);
+    }
+}
+
 void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h) {
     int height = 0;
     switch (properties_mode) {
@@ -73,6 +83,9 @@ void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h) 
             break;
         case PROPMODE_TRACK_SELECTOR:
             height = propmode_track_selector(renderer, x, y, w, h);
+            break;
+        case PROPMODE_CLIP_SETTINGS:
+            height = propmode_clip_settings(renderer, x, y, w, h);
             break;
     }
     if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + h) properties_scroll += mouseScroll * 24;
@@ -84,4 +97,8 @@ void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h) 
 void properties_change_mode(PropertiesMode mode) {
     properties_scroll = 0;
     properties_mode = mode;
+}
+
+PropertiesMode properties_current_mode() {
+    return properties_mode;
 }
