@@ -10,7 +10,7 @@ CFLAGS = -Wall -g -I src
 LDFLAGS :=
 LIBS =
 ifeq ($(OS),Windows_NT)
-	CFLAGS += -D WINDOWS
+	CFLAGS += -DWINDOWS
 	LIBS += -static $(shell pkg-config --libs --static sdl2)
 else
 	LIBS += -lSDL2 -lSDL2main
