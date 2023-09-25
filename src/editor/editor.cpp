@@ -30,7 +30,7 @@ std::vector<std::string> split_string(char delimiter, std::string input) {
 }
 
 std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::filesystem::path path) {
-    std::string cmd = "ffprobe -v error -show_entries stream=codec_type:format=duration -of default=nw=1:nk=1 " + path.string();
+    std::string cmd = "ffprobe -v error -show_entries stream=codec_type:format=duration -of default=nw=1:nk=1 \"" + path.string() + "\"";
     FILE* pipe = popen(cmd.c_str(), "r");
     if (!pipe) return { -1, {} };
     char buffer[128];
