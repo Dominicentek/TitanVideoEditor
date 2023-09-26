@@ -34,9 +34,9 @@ std::string exec_command(std::string command) {
         SECURITY_ATTRIBUTES attributes = { .nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE };
         if (CreatePipe(&stdoutRead, &stdoutWrite, &attributes, 0)) {
             if (SetHandleInformation(stdoutRead, HANDLE_FLAG_INHERIT, 0)) {
-                STARTUPINFO startupInfo = { cb = sizeof(STARTUPINFO), .dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW, .wShowWindow = SW_HIDE, .hStdOutput = stdoutWrite, .hStdError = stdoutWrite };
+                STARTUPINFO startupInfo = { .cb = sizeof(STARTUPINFO), .dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW, .wShowWindow = SW_HIDE, .hStdOutput = stdoutWrite, .hStdError = stdoutWrite };
                 if (CreateProcessA(nullptr, cmd, nullptr, nullptr, true, 0, nullptr, nullptr, &startupInfo, &processInfo)) {
-                    CloseHandle(stdoutWrite)
+                    CloseHandle(stdoutWrite);
                     stdoutWrite = INVALID_HANDLE_VALUE;
                     CloseHandle(processInfo.hThread);
                     DWORD bytesRead;
