@@ -16,15 +16,7 @@ bool timeline_locking = true;
 
 std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::filesystem::path path) {
     std::string cmd = "ffprobe -v error -show_entries stream=codec_type:format=duration -of default=nw=1:nk=1 \"" + path.string() + "\"";
-    FILE* pipe = popen(cmd.c_str(), "r");
-    if (!pipe) return { -1, {} };
-    char buffer[128];
-    std::string out = "";
-    while (!feof(pipe)) {
-        if (fgets(buffer, 128, pipe) != nullptr) {
-            out += buffer;
-        }
-    }
+    std::string out = exec_command(cmd);
     float duration = 0.0f;
     std::vector<TrackType> streams = {};
     std::vector<std::string> lines = split_string('\n', out);
