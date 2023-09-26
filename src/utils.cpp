@@ -21,38 +21,39 @@ std::vector<std::string> split_string(char delimiter, std::string input) {
     return tokens;
 }
 
+
 std::string exec_command(std::string command) {
-#ifdef WINDOWS // i fucking hate windows with a burning passion
-    HANDLE g_hChildStd_OUT_Rd = nullptr;
-    HANDLE g_hChildStd_OUT_Wr = nullptr;
-    SECURITY_ATTRIBUTES saAttr;
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = true;
-    saAttr.lpSecurityDescriptor = nullptr;
-    CreatePipe(&g_hChildStd_OUT_Rd, &g_hChildStd_OUT_Wr, &saAttr, 0);
-    SetHandleInformation(g_hChildStd_OUT_Rd, HANDLE_FLAG_INHERIT, 0);
-    STARTUPINFO si;
-    PROCESS_INFORMATION pi;
-    ZeroMemory(&si, sizeof(si));
-    si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi));
-    si.dwFlags = STARTF_USESHOWWINDOW;
-    si.wShowWindow = SW_HIDE;
-    si.hStdOutput = g_hChildStd_OUT_Wr;
-    si.hStdError = g_hChildStd_OUT_Wr;
-    si.dwFlags |= STARTF_USESTDHANDLES;
-    CreateProcess(nullptr, (char*)command.c_str(), nullptr, nullptr, true, 0, nullptr, nullptr, &si, &pi);
-    CloseHandle(g_hChildStd_OUT_Wr);
-    DWORD bytesRead;
-    char buffer[4096];
-    std::string output;
-    while (ReadFile(g_hChildStd_OUT_Rd, buffer, 4096, &bytesRead, nullptr) && bytesRead != 0) {
-        output.append(buffer, bytesRead);
+    // popen opens up cmd window in windows smh, have to use this thing for windows
+#ifdef WINDOWS // thanks integerbang
+    HANDLE stdoutRead = INVALID_HANDLE_VALUE;
+    HANDLE stdoutWrite = INVALID_HANDLE_VALUE;
+    PROCESS_INFORMATION processInfo = {};
+    char* cmd = strdup(command.c_str());
+    std::string result;
+    if (cmd) {
+        SECURITY_ATTRIBUTES attributes = { .nLength = sizeof(SECURITY_ATTRIBUTES), .bInheritHandle = TRUE };
+        if (CreatePipe(&stdoutRead, &stdoutWrite, &attributes, 0)) {
+            if (SetHandleInformation(stdoutRead, HANDLE_FLAG_INHERIT, 0)) {
+                STARTUPINFO startupInfo = { cb = sizeof(STARTUPINFO), .dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW, .wShowWindow = SW_HIDE, .hStdOutput = stdoutWrite, .hStdError = stdoutWrite };
+                if (CreateProcessA(nullptr, cmd, nullptr, nullptr, true, 0, nullptr, nullptr, &startupInfo, &processInfo)) {
+                    CloseHandle(stdoutWrite)
+                    stdoutWrite = INVALID_HANDLE_VALUE;
+                    CloseHandle(processInfo.hThread);
+                    DWORD bytesRead;
+                    char buffer[4096];
+                    while (ReadFile(stdoutRead, buffer, 4096, &bytesRead, nullptr) && bytesRead > 0) {
+                        result.append(buffer, bytesRead);
+                    }
+                    WaitForSingleObject(processInfo.hProcess, INFINITE);
+                    CloseHandle(processInfo.hProcess);
+                }
+            }
+            CloseHandle(stdoutRead);
+            if (stdoutWrite != INVALID_HANDLE_VALUE) CloseHandle(stdoutWrite);
+        }
+        free(cmd);
     }
-    WaitForSingleObject(pi.hProcess, INFINITE);
-    CloseHandle(pi.hProcess);
-    CloseHandle(pi.hThread);
-    return output;
+    return result;
 #else // this is why unix better
     FILE* cmd = popen(command.c_str(), "r");
     char buffer[4096];
