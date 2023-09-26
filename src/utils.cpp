@@ -35,15 +35,15 @@ std::string exec_command(std::string command) {
     PROCESS_INFORMATION pi;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
-    ZeroMemory(&pi, sizeof(pi);
+    ZeroMemory(&pi, sizeof(pi));
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow = SW_HIDE;
     si.hStdOutput = g_hChildStd_OUT_Wr;
     si.hStdError = g_hChildStd_OUT_Wr;
     si.dwFlags |= STARTF_USESTDHANDLES;
-    CreateProcess(nullptr, command.c_str(), nullptr, nullptr, true, 0, nullptr, nullptr, &si, &pi)) {
+    CreateProcess(nullptr, (char*)command.c_str(), nullptr, nullptr, true, 0, nullptr, nullptr, &si, &pi);
     CloseHandle(g_hChildStd_OUT_Wr);
-    int bytesRead;
+    DWORD bytesRead;
     char buffer[4096];
     std::string output;
     while (ReadFile(g_hChildStd_OUT_Rd, buffer, 4096, &bytesRead, nullptr) && bytesRead != 0) {
