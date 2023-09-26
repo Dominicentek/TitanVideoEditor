@@ -1,5 +1,6 @@
 #include "editor.hpp"
 #include "main.hpp"
+#include "utils.hpp"
 
 #include <vector>
 #include <filesystem>
@@ -12,22 +13,6 @@
 int current_frame = 0;
 std::vector<Track> tracks = {};
 bool timeline_locking = true;
-
-std::vector<std::string> split_string(char delimiter, std::string input) {
-    std::vector<std::string> tokens = {};
-    std::string token = "";
-    for (int i = 0; i < input.size(); i++) {
-        char character = input[i];
-        if (character == '\r') continue;
-        if (character == delimiter) {
-            tokens.push_back(token);
-            token = "";
-        }
-        else token += character;
-    }
-    tokens.push_back(token);
-    return tokens;
-}
 
 std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::filesystem::path path) {
     std::string cmd = "ffprobe -v error -show_entries stream=codec_type:format=duration -of default=nw=1:nk=1 \"" + path.string() + "\"";

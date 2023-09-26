@@ -6,11 +6,14 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 
 #include "gui/gui_layout.hpp"
 #include "gui/lib/cursors.hpp"
 #include "gui/lib/icons.hpp"
 #include "gui/render_util.hpp"
+#include "utils.hpp"
 
 int mouseX;
 int mouseY;
@@ -89,9 +92,26 @@ bool render_ffmpeg_error(SDL_Renderer* renderer) {
 }
 
 bool check_ffmpeg() {
-    FILE* cmd = popen("ffmpeg" NULLFILE, "r");
-    int exit = WEXITSTATUS(pclose(cmd));
-    return exit == 1;
+    std::string path = std::string(getenv("PATH"));
+#ifdef WINDOWS
+    char delimiter = ';';
+    std::string suffix = ".exe";
+#else
+    char delimiter = ':';
+    std::string suffix = "";
+#endif
+    std::vector<std::string> paths = split_string(delimiter, path);
+    std::vector<std::string> dependencies = { "ffmpeg", "ffprobe", "ffplay" };
+    for (std::string p : paths) {
+        for (int i = 0; i < dependencies.size(); i++) {
+            std::filesystem::path fsPath = std::filesystem::path(p) / (dependencies[i] + suffix);
+            if (std::filesystem::exists(fsPath)) {
+                dependencies.erase(dependencies.begin() + i);
+                i--;
+            }
+        }
+    }
+    return dependencies.size() == 0;
 }
 
 int main(int argc, char** argv) {
