@@ -21,12 +21,14 @@ endif
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
+	@echo "\033[1m\033[32mLinking \033[36m$(EXECUTABLE)\033[0m"
 	@mkdir -p $(BIN_DIR)
-	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@echo "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m"
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(BIN_DIR)
@@ -35,6 +37,6 @@ clean:
 
 $(OBJ_DIR)/%.d: $(SRC_DIR)/%.cpp
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -MM -MT $(@:.d=.o) $< -o $@
+	@$(CC) $(CFLAGS) -MM -MT $(@:.d=.o) $< -o $@
 
 -include $(OBJS:.o=.d)
