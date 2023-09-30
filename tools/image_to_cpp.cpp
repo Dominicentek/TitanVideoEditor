@@ -36,8 +36,8 @@ static void GenerateSource(std::ofstream& sourceFileStream, const fs::path& imag
 int main(int argc, char* argv[])
 {
 
-	const auto inDir = fs::path(argv[1]);
-	const auto outDir = fs::path(argv[2]);
+	const auto inDir = fs::path(argc == 1 ? "images" : argv[1]);
+	const auto outDir = fs::path(argc == 1 ? "src/gui/libs" : argv[2]);
 
 	auto imagesHeaderStream = std::ofstream(outDir / "images.hpp");
 	auto imagesSourceStream = std::ofstream(outDir / "images.cpp");
