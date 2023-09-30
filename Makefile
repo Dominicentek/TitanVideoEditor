@@ -2,10 +2,14 @@ CC := g++
 SRC_DIR := src
 OBJ_DIR := build/objs
 BIN_DIR := build
+TOOLS_SRCDIR := tools
+TOOLS_BINDIR := build/tools
 EXECUTABLE := $(BIN_DIR)/titan
 
 SRCS := $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRCS))
+TOOLS_SRC := $(shell find $(TOOLS_SRCDIR) -type f -name "*.cpp")
+TOOLS_EXEC := $(patsubst $(TOOLS_SRCDIR)/%.cpp,$(TOOLS_BINDIR)/%,$(TOOLS_SRC))
 CFLAGS = -Wall -g -I src
 LDFLAGS :=
 LIBS =
@@ -18,7 +22,7 @@ endif
 
 .PHONY: all clean
 
-all: $(EXECUTABLE)
+all: compile-tools $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
 	@echo "\033[1m\033[32mLinking \033[36m$(EXECUTABLE)\033[0m"
@@ -29,6 +33,19 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@echo "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m"
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
+
+compile-tools: $(TOOLS_EXEC) run-tools
+
+$(TOOLS_BINDIR)/%: $(TOOLS_SRCDIR)/%.cpp
+	@echo "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m"
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) $< -o $@
+
+run-tools:
+	@for tool in $(TOOLS_EXEC); do \
+		echo "\033[1m\033[32mRunning tool \033[36m$$tool\033[0m"; \
+		$$tool; \
+	done
 
 clean:
 	rm -rf $(BIN_DIR)
