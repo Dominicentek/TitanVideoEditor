@@ -16,9 +16,9 @@ LIBS =
 
 ifeq ($(OS),Windows_NT)
 	CFLAGS += -DWINDOWS
-	LIBS += -static $(shell pkg-config --libs --static sdl2)
+	LIBS += -static $(shell pkg-config --libs --static sdl2 libpng)
 else
-	LIBS += -lSDL2 -lSDL2main
+	LIBS += -lSDL2 -lSDL2main -lpng
 endif
 
 .PHONY: all clean compile-tools run-tools
