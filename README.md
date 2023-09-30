@@ -5,6 +5,7 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 * SDL2
 * OpenGL
 * FFmpeg
+* libpng
 
 ## Installation
 ### Windows
@@ -20,7 +21,7 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 2. Run the **MINGW** shell. You can find it in the start menu. **Do not run UCRT!**
 3. Install dependencies<br><br>
    ```
-   pacman -S git make pkg-config mingw-w64-x86_64-gcc mingw-w64-x86_64-glew mingw-w64-x86_64-SDL2
+   pacman -S git make pkg-config mingw-w64-x86_64-gcc mingw-w64-x86_64-glew mingw-w64-x86_64-SDL2 mingw-w64-x86_64-libpng
    ```
 4. Clone the repository<br><br>
    ```
@@ -36,11 +37,11 @@ A cross platform video editing tool written in C++ designed to feel as close to 
 1. Install dependencies
    * For Debian based:<br><br>
      ```
-     sudo apt install ffmpeg git build-essential libglew-dev libsdl2-dev
+     sudo apt install ffmpeg git build-essential libglew-dev libsdl2-dev libpng-dev
      ```
    * For Arch based:<br><br>
      ```
-     sudo pacman -S ffmpeg git make gcc glew sdl2
+     sudo pacman -S ffmpeg git make gcc glew sdl2 libpng
      ```
 2. Clone the repository<br><br>
    ```
