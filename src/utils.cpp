@@ -1,6 +1,8 @@
 #include <vector>
 #include <string>
 #include <cstdio>
+#include <SDL2/SDL.h>
+#include <png.h>
 #ifdef WINDOWS
 #include <windows.h>
 #endif
@@ -66,4 +68,94 @@ std::string exec_command(std::string command) {
     pclose(cmd);
     return out;
 #endif
+}
+
+struct ReadPngInfo
+{
+    const uint8_t* const Buffer;
+    png_size_t Read;
+};
+
+static void ReadPngData(png_structp png_ptr, png_bytep out, png_size_t readSize)
+{
+    auto ioPtr = static_cast<ReadPngInfo*>(png_get_io_ptr(png_ptr));
+    memcpy(out, ioPtr->Buffer + ioPtr->Read, readSize);
+    ioPtr->Read += readSize;
+}
+
+SDL_Surface* CreateSdlSurfaceFromPng(void* data)
+{
+    auto png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+
+    if (!png)
+        abort();
+
+    png_infop info = png_create_info_struct(png);
+    if (!info)
+    {
+        png_destroy_read_struct(&png, nullptr, nullptr);
+        abort();
+    }
+
+    if (setjmp(png_jmpbuf(png)))
+    {
+        png_destroy_info_struct(png, &info);
+        png_destroy_read_struct(&png, nullptr, nullptr);
+        abort();
+    }
+
+    ReadPngInfo readInfo{ static_cast<const uint8_t* const>(data), 0 };
+    png_set_read_fn(png, &readInfo, ReadPngData);
+
+    png_read_info(png, info);
+
+    png_uint_32 width, height;
+    int bitDepth;
+    int colorType;
+
+    if (!png_get_IHDR(png, info, &width, &height, &bitDepth, &colorType, nullptr, nullptr, nullptr))
+    {
+        png_destroy_info_struct(png, &info);
+        png_destroy_read_struct(&png, nullptr, nullptr);
+        abort();
+    }
+
+    const auto surface = SDL_CreateRGBSurface(0, width, height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+
+    auto pixels = (uint8_t*)surface->pixels;
+
+    switch (colorType)
+    {
+    case PNG_COLOR_TYPE_RGBA:
+    {
+        auto bytesPerRow = png_get_rowbytes(png, info);
+        auto rowData = new uint8_t[bytesPerRow];
+        for (size_t y = 0; y < height; y++)
+        {
+            png_read_row(png, rowData, nullptr);
+
+            for (size_t x = 0; x < width; x++)
+            {
+                auto red = rowData[x * 4];
+                auto green = rowData[x * 4 + 1];
+                auto blue = rowData[x * 4 + 2];
+                auto alpha = rowData[x * 4 + 3];
+
+                pixels[x * 4 + bytesPerRow * y] = red;
+                pixels[x * 4 + bytesPerRow * y + 1] = green;
+                pixels[x * 4 + bytesPerRow * y + 2] = blue;
+                pixels[x * 4 + bytesPerRow * y + 3] = alpha;
+            }
+        }
+        delete[] rowData;
+        break;
+    }
+    default:
+        printf("invalid color type: %d\n", colorType);
+        exit(1);
+    }
+
+    png_destroy_info_struct(png, &info);
+    png_destroy_read_struct(&png, nullptr, nullptr);
+    return surface;
 }
