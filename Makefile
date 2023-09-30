@@ -25,25 +25,25 @@ endif
 all: compile-tools $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJS)
-	@echo "\033[1m\033[32mLinking \033[36m$(EXECUTABLE)\033[0m"
+	@printf "\033[1m\033[32mLinking \033[36m$(EXECUTABLE)\033[0m\n"
 	@mkdir -p $(BIN_DIR)
 	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m"
+	@printf "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m\n"
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 compile-tools: $(TOOLS_EXEC) run-tools
 
 $(TOOLS_BINDIR)/%: $(TOOLS_SRCDIR)/%.cpp
-	@echo "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m"
+	@printf "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m\n"
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $< -o $@
 
 run-tools:
 	@for tool in $(TOOLS_EXEC); do \
-		echo "\033[1m\033[32mRunning tool \033[36m$$tool\033[0m"; \
+		printf "\033[1m\033[32mRunning tool \033[36m$$tool\033[0m\n"; \
 		$$tool; \
 	done
 
