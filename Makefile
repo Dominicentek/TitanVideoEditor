@@ -13,6 +13,7 @@ TOOLS_EXEC := $(patsubst $(TOOLS_SRCDIR)/%.cpp,$(TOOLS_BINDIR)/%,$(TOOLS_SRC))
 CFLAGS = -Wall -g -I src
 LDFLAGS :=
 LIBS =
+
 ifeq ($(OS),Windows_NT)
 	CFLAGS += -DWINDOWS
 	LIBS += -static $(shell pkg-config --libs --static sdl2)
@@ -20,7 +21,7 @@ else
 	LIBS += -lSDL2 -lSDL2main
 endif
 
-.PHONY: all clean
+.PHONY: all clean compile-tools run-tools
 
 all: compile-tools $(EXECUTABLE)
 
