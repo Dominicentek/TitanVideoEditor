@@ -159,3 +159,11 @@ SDL_Surface* CreateSdlSurfaceFromPng(void* data)
     png_destroy_read_struct(&png, nullptr, nullptr);
     return surface;
 }
+
+SDL_Texture* create_texture(SDL_Renderer* renderer, void* data) {
+    const auto surface = CreateSdlSurfaceFromPng(data);
+end:
+    auto tex = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    return tex;
+}

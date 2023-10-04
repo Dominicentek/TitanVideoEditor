@@ -18,13 +18,13 @@ set(SOURCES
 	src/gui/lib/images.cpp
 )
 
-add_executable(image_to_cpp tools/image_to_cpp.cpp)
+add_executable(file_embed tools/file_embed.cpp)
+add_executable(icon_autogen tools/icon_autogen.cpp)
 
 add_executable(titan ${SOURCES})
 target_include_directories(titan PRIVATE src)
 target_link_libraries(titan SDL2 png)
 target_compile_options(titan PRIVATE -Wall -g -I src)
 
-add_custom_command(OUTPUT ${CMAKE_SOURCE_DIR}/src/gui/lib/images.cpp
-	COMMAND $<TARGET_FILE:image_to_cpp> ${CMAKE_SOURCE_DIR}/images ${CMAKE_SOURCE_DIR}/src/gui/lib
-)
+add_custom_command(COMMAND $<TARGET_FILE:file_embed>)
+add_custom_command(COMMAND $<TARGET_FILE:icon_autogen>)
