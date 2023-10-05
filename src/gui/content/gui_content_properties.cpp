@@ -93,7 +93,7 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
             }
             if (button_icon(renderer, icon_edit, x + w - 46, y + i * 24 + 52, 16, 16, 0x505050FF)) {
                 current_filter = &current_clip->filters[i];
-                properties_change_mode(PROPMODE_TRACK_CONFIG);
+                properties_change_mode(PROPMODE_FILTER_CONFIG);
             }
             if (button_icon(renderer, icon_up, x + w - 72, y + i * 24 + 52, 16, 16, 0x505050FF, i == 0)) {
                 Filter temp = current_clip->filters[i];
