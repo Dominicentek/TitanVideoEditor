@@ -4,10 +4,14 @@
 #include "gui/lib/icons.hpp"
 #include "main.hpp"
 #include "gui/gui_layout.hpp"
+#include "editor/filters.hpp"
+
+#include <iostream>
 
 int current_media_length = 0;
 std::string current_media_name = "";
 std::vector<TrackType> current_streams = {};
+Filter* current_filter = nullptr;
 Clip* current_clip = nullptr;
 int current_clip_track_index = 0;
 int current_clip_index = 0;
@@ -73,6 +77,63 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
         tracks[current_clip_track_index].clips.erase(tracks[current_clip_track_index].clips.begin() + current_clip_index);
         properties_change_mode(PROPMODE_NONE_SELECTED);
     }
+    render_text(renderer, 26, 7, "Delete");
+    if (tracks[current_clip_track_index].type == TRACKTYPE_VIDEO) {
+        render_text(renderer, 4, 28, "Filters");
+        if (button_icon(renderer, icon_add, x + w - 20, y + 24, 16, 16, 0x303030FF)) {
+            properties_change_mode(PROPMODE_FILTER_SELECT);
+        }
+        for (int i = 0; i < current_clip->filters.size(); i++) {
+            render_rect(renderer, 2, i * 24 + 48, w - 4, 24, 0x303030FF);
+            render_rect(renderer, 3, i * 24 + 49, w - 6, 22, 0x404040FF);
+            render_text(renderer, 6, i * 24 + 54, current_clip->filters[i].name);
+            if (button_icon(renderer, icon_remove, x + w - 20, y + i * 24 + 52, 16, 16, 0x505050FF)) {
+                current_clip->filters.erase(current_clip->filters.begin() + i);
+                i--;
+            }
+            if (button_icon(renderer, icon_edit, x + w - 46, y + i * 24 + 52, 16, 16, 0x505050FF)) {
+                current_filter = &current_clip->filters[i];
+                properties_change_mode(PROPMODE_TRACK_CONFIG);
+            }
+            if (button_icon(renderer, icon_up, x + w - 72, y + i * 24 + 52, 16, 16, 0x505050FF, i == 0)) {
+                Filter temp = current_clip->filters[i];
+                current_clip->filters[i] = current_clip->filters[i - 1];
+                current_clip->filters[i - 1] = temp;
+            }
+            if (button_icon(renderer, icon_down, x + w - 96, y + i * 24 + 52, 16, 16, 0x505050FF, i == current_clip->filters.size() - 1)) {
+                Filter temp = current_clip->filters[i];
+                current_clip->filters[i] = current_clip->filters[i + 1];
+                current_clip->filters[i + 1] = temp;
+            }
+        }
+        return 46 + current_clip->filters.size() * 28;
+    }
+}
+
+int propmode_filter_select(SDL_Renderer* renderer, int x, int y, int w, int h) {
+    if (button_icon(renderer, icon_back, x + 4, y + 4, 16, 16, 0x303030FF)) {
+        properties_change_mode(PROPMODE_CLIP_SETTINGS);
+    }
+    render_text(renderer, 26, 7, "Back");
+    for (int i = 0; i < available_filters.size(); i++) {
+        render_rect(renderer, 2, i * 24 + 24, w - 4, 24, 0x303030FF);
+        render_rect(renderer, 3, i * 24 + 25, w - 6, 22, 0x404040FF);
+        render_text(renderer, 6, i * 24 + 30, available_filters[i].name);
+        if (button_icon(renderer, icon_add, x + w - 20, y + i * 24 + 28, 16, 16, 0x505050FF)) {
+            current_clip->filters.push_back(available_filters[i]);
+            properties_change_mode(PROPMODE_CLIP_SETTINGS);
+        }
+    }
+    return 22 + current_clip->filters.size() * 28;
+}
+
+int propmode_filter_config(SDL_Renderer* renderer, int x, int y, int w, int h) {
+    int height = 24;
+    if (button_icon(renderer, icon_back, x + 4, y + 4, 16, 16, 0x303030FF)) {
+        properties_change_mode(PROPMODE_CLIP_SETTINGS);
+    }
+    render_text(renderer, 26, 7, "Back");
+    return height;
 }
 
 void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h) {
@@ -86,6 +147,12 @@ void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h) 
             break;
         case PROPMODE_CLIP_SETTINGS:
             height = propmode_clip_settings(renderer, x, y, w, h);
+            break;
+        case PROPMODE_FILTER_SELECT:
+            height = propmode_filter_select(renderer, x, y, w, h);
+            break;
+        case PROPMODE_FILTER_CONFIG:
+            height = propmode_filter_config(renderer, x, y, w, h);
             break;
     }
     if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + h) properties_scroll += mouseScroll * 24;

@@ -38,16 +38,21 @@ enum FilterPropertyType {
     FILTERPROP_BOOL,
     FILTERPROP_POINT,
     FILTERPROP_COLOR,
+    FILTERPROP_TRANSFORM,
+    FILTERPROP_ROTATION,
 };
 
 struct FilterProperty {
     std::string label;
+    std::string uniform;
     float values[4];
     FilterPropertyType type;
 };
 
 struct Filter {
     std::string shader;
+    std::string mainFunc;
+    std::string name;
     FilterProperty properties[16];
     int numProperties;
     std::vector<Keyframe> keyframes;
@@ -60,13 +65,19 @@ class FilterBuilder {
     FilterBuilder() {
         filter.numProperties = 0;
     }
-    FilterBuilder* set_shader(std::string shader) {
+    FilterBuilder* set_shader(std::string shader, std::string mainFunc) {
         filter.shader = shader;
+        filter.mainFunc = mainFunc;
         return this;
     }
-    FilterBuilder* add_property(std::string label, FilterPropertyType type, float val1 = 0, float val2 = 0, float val3 = 0, float val4 = 0) {
+    FilterBuilder* with_name(std::string name) {
+        filter.name = name;
+        return this;
+    }
+    FilterBuilder* add_property(std::string label, std::string uniform, FilterPropertyType type, float val1 = 0, float val2 = 0, float val3 = 0, float val4 = 0) {
         FilterProperty property;
         property.label = label;
+        property.uniform = uniform;
         property.type = type;
         property.values[0] = val1;
         property.values[1] = val2;
@@ -95,7 +106,7 @@ struct Clip {
     int trim;
     float fade;
     float speed;
-    std::vector<Filter*> filters;
+    std::vector<Filter> filters;
 };
 
 struct Track {
@@ -108,5 +119,6 @@ extern int current_frame;
 extern bool timeline_locking;
 
 extern std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::filesystem::path path);
+extern std::string generate_filter(Clip* clip);
 
 #endif

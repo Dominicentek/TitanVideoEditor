@@ -33,3 +33,16 @@ std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::files
     }
     return { (int)(duration * 30), streams };
 }
+
+std::string generate_filter(Clip* clip) {
+    std::string shader = "varying vec2 v_texCoords;\nuniform sampler2D u_texture;\n\n";
+    for (const Filter& filter : clip->filters) {
+        shader += filter.shader + "\n";
+    }
+    shader += "void main() {\n    vec4 color = texture2D(u_texture, v_texCoords);\n";
+    for (const Filter& filter : clip->filters) {
+        shader += "    color = " + filter.mainFunc + "(color);\n";
+    }
+    shader += "    gl_FragColor = color;\n}";
+    return shader;
+}

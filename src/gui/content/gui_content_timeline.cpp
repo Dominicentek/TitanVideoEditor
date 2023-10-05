@@ -78,7 +78,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
             int clipH = 28;
             int clipColor = 0x404040FF;
             int clipGrabColor = 0x303030FF;
-            if (current_clip_track_index == i && current_clip_index == j && properties_current_mode() == PROPMODE_CLIP_SETTINGS) {
+            if (current_clip_track_index == i && current_clip_index == j && (properties_current_mode() == PROPMODE_CLIP_SETTINGS || properties_current_mode() == PROPMODE_FILTER_SELECT)) {
                 clipColor = 0x606060FF;
                 clipGrabColor = 0x505050FF;
             }
@@ -99,7 +99,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
                 clipGrabOffset = mouseFramePos - clip.pos;
             }
             if (rightMousePressed && mouseX >= x + clipX && mouseY >= y + clipY && mouseX < x + clipX + clipW && mouseY < y + clipY + clipH) {
-                current_clip = grabbedClip;
+                current_clip = &tracks[i].clips[j];
                 current_clip_index = j;
                 current_clip_track_index = i;
                 properties_change_mode(PROPMODE_CLIP_SETTINGS);

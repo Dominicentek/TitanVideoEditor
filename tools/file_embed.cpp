@@ -45,6 +45,7 @@ int main() {
         stream.read(content, size);
         stream.close();
         std::string id = c_filename(std::filesystem::relative(file, assets).string());
+        assetdata += "\ninline int " + id + "_length = " + std::to_string(size) + ";";
         assetdata += "\ninline unsigned char " + id + "[] = {";
         for (int i = 0; i < size; i++) {
             if (i % 16 == 0) assetdata += "\n    ";
