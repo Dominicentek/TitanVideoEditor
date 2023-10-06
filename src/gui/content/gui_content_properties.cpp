@@ -90,6 +90,7 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
             if (button_icon(renderer, icon_remove, x + w - 20, y + i * 24 + 52, 16, 16, 0x505050FF)) {
                 current_clip->filters.erase(current_clip->filters.begin() + i);
                 i--;
+                continue;
             }
             if (button_icon(renderer, icon_edit, x + w - 46, y + i * 24 + 52, 16, 16, 0x505050FF)) {
                 current_filter = &current_clip->filters[i];

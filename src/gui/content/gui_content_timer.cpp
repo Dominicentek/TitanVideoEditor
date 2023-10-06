@@ -50,6 +50,7 @@ void gui_content_timer(SDL_Renderer* renderer, int x, int y, int w, int h) {
             if (i == current_clip_track_index && properties_current_mode() == PROPMODE_CLIP_SETTINGS) properties_change_mode(PROPMODE_NONE_SELECTED);
             tracks.erase(tracks.begin() + i);
             i--;
+            continue;
         }
         if (button_icon(renderer, icon_up, x + w - 9 - 20 - 4 - 20, y + 24 + (i - timer_scroll) * 32 + 7, 16, 16, 0x404040FF, i == 0)) {
             Track temp = tracks[i];
