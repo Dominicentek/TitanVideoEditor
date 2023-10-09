@@ -167,3 +167,16 @@ end:
     SDL_FreeSurface(surface);
     return tex;
 }
+
+float map(float x, float srcMin, float srcMax, float dstMin, float dstMax) {
+    return (x - srcMin) / (srcMax - srcMin) * (dstMax - dstMin) + dstMin;
+}
+
+std::string format_string(std::string format, ...) {
+    va_list args;
+    char buf[1024];
+    va_start(args, format);
+    vsnprintf(buf, sizeof(buf), format.data(), args);
+    va_end(args);
+    return buf;
+}

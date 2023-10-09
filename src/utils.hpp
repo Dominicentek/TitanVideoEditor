@@ -10,5 +10,7 @@ std::vector<std::string> split_string(char delimiter, std::string input);
 std::string exec_command(std::string command);
 SDL_Surface* CreateSdlSurfaceFromPng(void* data);
 SDL_Texture* create_texture(SDL_Renderer* renderer, void* data);
+float map(float x, float srcMin, float srcMax, float dstMin, float dstMax);
+std::string format_string(std::string format, ...);
 
 #endif

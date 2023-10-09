@@ -9,8 +9,10 @@
 
 #define CONST(value) new float(value)
 
+typedef void (*GuiWindowRenderer)(SDL_Renderer*, int, int, int, int);
+
 struct GuiLayoutSection {
-    void (*render)(SDL_Renderer*, int, int, int, int);
+    GuiWindowRenderer render;
     float* x1;
     float* y1;
     float* x2;
@@ -24,6 +26,14 @@ struct GuiLayoutSplitter {
     float* extendMin;
     float* extendMax;
     bool isVertical;
+};
+
+struct GuiPopup {
+    GuiWindowRenderer render;
+    int x;
+    int y;
+    int w;
+    int h;
 };
 
 inline float main_splitter_pos = 0.5f;
@@ -47,10 +57,13 @@ inline GuiLayoutSplitter gui_splitters[] = {
 };
 
 extern GuiLayoutSplitter* grabbedSplitter;
+extern GuiPopup* current_popup;
 
 extern void render_gui(SDL_Renderer* renderer);
 extern bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color);
 extern bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color, bool locked);
+extern void open_popup(int x, int y, int w, int h, GuiWindowRenderer renderer);
+extern void close_popup();
 
 #undef CONST
 

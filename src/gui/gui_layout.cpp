@@ -10,6 +10,7 @@
 #include <iostream>
 
 GuiLayoutSplitter* grabbedSplitter = nullptr;
+GuiPopup* current_popup = nullptr;
 
 void render_gui(SDL_Renderer* renderer) {
     render_rect(renderer, 0, 0, windowWidth, windowHeight, 0x101010FF);
@@ -34,6 +35,25 @@ void render_gui(SDL_Renderer* renderer) {
         section.render(renderer, rect.x, rect.y, rect.w, rect.h);
         reset_translation();
         SDL_RenderSetClipRect(renderer, nullptr);
+    }
+    if (current_popup != nullptr) {
+        render_rect(renderer, current_popup->x - 1, current_popup->y - 1, current_popup->w + 2, current_popup->h + 2, 0x101010FF);
+        SDL_Rect rect;
+        rect.x = current_popup->x;
+        rect.y = current_popup->y;
+        rect.w = current_popup->w;
+        rect.h = current_popup->h;
+        SDL_RenderSetClipRect(renderer, &rect);
+        render_translate(rect.x, rect.y);
+        render_rect(renderer, 0, 0, rect.w, rect.h, 0x202020FF);
+        current_popup->render(renderer, rect.x, rect.y, rect.w, rect.h);
+        reset_translation();
+        SDL_RenderSetClipRect(renderer, nullptr);
+        if (mousePressed && (
+            mouseX < current_popup->x ||
+            mouseY < current_popup->y ||
+            mouseX >= current_popup->x + current_popup->w ||
+            mouseY >= current_popup->y + current_popup->h)) close_popup();
     }
     if (!mouseDown) grabbedSplitter = nullptr;
     if (grabbedSplitter != nullptr) {
@@ -112,4 +132,20 @@ bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w,
     SDL_RenderCopy(renderer, icon, nullptr, &rect);
     SDL_SetTextureColorMod(icon, 255, 255, 255);
     return clicked;
+}
+
+void open_popup(int x, int y, int w, int h, GuiWindowRenderer renderer) {
+    if (current_popup != nullptr) close_popup();
+    current_popup = (GuiPopup*)malloc(sizeof(GuiPopup));
+    current_popup->x = x;
+    current_popup->y = y;
+    current_popup->w = w;
+    current_popup->h = h;
+    current_popup->render = renderer;
+}
+
+void close_popup() {
+    if (current_popup == nullptr) return;
+    free(current_popup);
+    current_popup = nullptr;
 }

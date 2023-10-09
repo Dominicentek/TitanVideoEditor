@@ -26,7 +26,7 @@ enum KeyframeCurve {
 };
 
 struct Keyframe {
-    float values[4];
+    float values[4 * 16];
     int pos;
     KeyframeType type;
     KeyframeCurve curve;
@@ -39,7 +39,6 @@ enum FilterPropertyType {
     FILTERPROP_POINT,
     FILTERPROP_COLOR,
     FILTERPROP_TRANSFORM,
-    FILTERPROP_ROTATION,
 };
 
 struct FilterProperty {

@@ -4,6 +4,7 @@
 #include "gui/gui_layout.hpp"
 #include "gui/gui_content.hpp"
 #include "gui/lib/cursors.hpp"
+#include "utils.hpp"
 
 #include <string>
 #include <iostream>
@@ -25,10 +26,6 @@ int grabbedClipTrackIndex = 0;
 int grabbedClipIndex = 0;
 
 std::vector<int> lock_positions = {};
-
-float map(float x, float srcMin, float srcMax, float dstMin, float dstMax) {
-    return (x - srcMin) / (srcMax - srcMin) * (dstMax - dstMin) + dstMin;
-}
 
 float get_space_between_frames() {
     float spaceBetweenFrames = 4;

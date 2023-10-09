@@ -5,8 +5,18 @@
 #include "main.hpp"
 #include "gui/gui_layout.hpp"
 #include "editor/filters.hpp"
+#include "utils.hpp"
 
 #include <iostream>
+struct Slider {
+    int x;
+    float min;
+    float max;
+    float* value;
+    bool integer;
+    bool grabbed;
+    int id;
+};
 
 int current_media_length = 0;
 std::string current_media_name = "";
@@ -21,6 +31,7 @@ std::string grabbed_media = "";
 int grabbed_media_track_index = -1;
 int grabbed_media_position = 0;
 TrackType grabbed_media_type = TRACKTYPE_VIDEO;
+Slider grabbed_slider = { .grabbed = false };
 
 int properties_scroll = 0;
 
@@ -134,7 +145,62 @@ int propmode_filter_config(SDL_Renderer* renderer, int x, int y, int w, int h) {
         properties_change_mode(PROPMODE_CLIP_SETTINGS);
     }
     render_text(renderer, 26, 7, "Back");
-    return height;
+    render_text(renderer, w - 4 - current_filter->name.length() * 7, 7, current_filter->name);
+    for (int i = 0; i < current_filter->numProperties; i++) {
+        FilterProperty* property = &current_filter->properties[i];
+        render_text(renderer, 4, i * 24 + 30, property->label);
+        if (property->type == FILTERPROP_BOOL) {
+            bool value = property->values[0] != 0;
+            int color = 0x303030FF;
+            if (mouseX >= x + w - 4 - 20 && mouseX < x + w - 4 && mouseY >= y + i * 24 + 26 && mouseY < y + i * 24 + 46) {
+                if (mousePressed) value = !value;
+                color = 0x404040FF;
+            }
+            render_rect(renderer, w - 24, i * 24 + 26, 20, 20, color);
+            render_texture(renderer, value ? icon_checkmark : icon_remove, w - 22, i * 24 + 28, 16, 16);
+            property->values[0] = value ? 1.0f : 0.0f;
+        }
+        if (property->type == FILTERPROP_FLOAT || property->type == FILTERPROP_INT) {
+            std::string value;
+            if (property->type == FILTERPROP_FLOAT) value = format_string("%.2f", property->values[0]);
+            else value = format_string("%i", (int)property->values[0]);
+            int pos = map(property->values[0], property->values[1], property->values[2], 0, 128);
+            render_text(renderer, w - 10 - 128 - value.length() * 7, i * 24 + 30, value);
+            render_rect(renderer, w - 4 - 128, i * 24 + 35, 128, 2, 0x181818FF);
+            if (property->values[0] < property->values[1] || property->values[0] > property->values[2]) continue;
+            int color = 0x303030FF;
+            if (mouseX >= x + w - 7 - 128 + pos && mouseX < x + w - 1 - 128 + pos && mouseY >= y + i * 24 + 26 && mouseY < y + i * 24 + 46) {
+                if (mousePressed) {
+                    grabbed_slider.grabbed = true;
+                    grabbed_slider.integer = property->type == FILTERPROP_INT;
+                    grabbed_slider.min = property->values[1];
+                    grabbed_slider.max = property->values[2];
+                    grabbed_slider.value = &current_filter->properties[i].values[0];
+                    grabbed_slider.x = x + w - 4 - 128;
+                    grabbed_slider.id = i;
+                }
+                color = 0x404040FF;
+            }
+            if (grabbed_slider.grabbed && grabbed_slider.id == i) color = 0x404040FF;
+            render_rect(renderer, w - 7 - 128 + pos, i * 24 + 26, 6, 20, color);
+        }
+        if (property->type == FILTERPROP_COLOR) {
+            
+        }
+        if (property->type == FILTERPROP_POINT) {
+
+        }
+    }
+    if (!mouseDown) grabbed_slider.grabbed = false;
+    if (grabbed_slider.grabbed) {
+        int rawValue = mouseX - grabbed_slider.x;
+        if (rawValue < 0) rawValue = 0;
+        if (rawValue > 127) rawValue = 127;
+        float value = map(rawValue, 0, 127, grabbed_slider.min, grabbed_slider.max);
+        if (grabbed_slider.integer) *grabbed_slider.value = (int)round(value);
+        else *grabbed_slider.value = value;
+    }
+    return height + current_filter->numProperties * 24;
 }
 
 void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h) {
