@@ -8,6 +8,7 @@
 #endif
 
 #include <SDL2/SDL.h>
+#include <string>
 
 extern int mouseX;
 extern int mouseY;
@@ -22,6 +23,8 @@ extern int windowWidth;
 extern int windowHeight;
 
 extern SDL_Cursor* next_cursor;
+
+extern std::string tooltip;
 
 extern bool is_key_pressed(SDL_Keycode code);
 extern bool is_key_held(SDL_Keycode code);

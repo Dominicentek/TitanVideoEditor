@@ -54,9 +54,12 @@ int propmode_track_selector(SDL_Renderer* renderer, int x, int y, int w, int h) 
     std::string text = std::string(buffer);
     for (int i = 0; i < current_streams.size(); i++) {
         int yPos = y + 24 + i * 32 - properties_scroll;
-        if (mouseX >= x && mouseY >= yPos && mouseY >= y + 24 && mouseX < x + w && mouseY < yPos + 32 && mousePressed) {
-            grabbed_media = current_media_name + "/" + (current_streams[i] == TRACKTYPE_VIDEO ? "v" : "a") + std::to_string(i);
-            grabbed_media_type = current_streams[i];
+        if (mouseX >= x && mouseY >= yPos && mouseY >= y + 24 && mouseX < x + w && mouseY < yPos + 32) {
+            if (mousePressed) {
+                grabbed_media = current_media_name + "/" + (current_streams[i] == TRACKTYPE_VIDEO ? "v" : "a") + std::to_string(i);
+                grabbed_media_type = current_streams[i];
+            }
+            tooltip = "Drag on timeline to add";
         } 
         render_rect(renderer, 2, yPos - y, w - 4, 28, 0x303030FF);
         render_texture(renderer, current_streams[i] == TRACKTYPE_VIDEO ? icon_video : icon_sound, 8, 30 + i * 32 - properties_scroll, 16, 16);
@@ -88,9 +91,10 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
         tracks[current_clip_track_index].clips.erase(tracks[current_clip_track_index].clips.begin() + current_clip_index);
         properties_change_mode(PROPMODE_NONE_SELECTED);
     }
-    render_text(renderer, 26, 7, "Delete");
+    render_text(renderer, 26, 7, "Remove Clip");
     if (tracks[current_clip_track_index].type == TRACKTYPE_VIDEO) {
         render_text(renderer, 4, 28, "Filters");
+        button_tooltip("Add Filter");
         if (button_icon(renderer, icon_add, x + w - 20, y + 24, 16, 16, 0x303030FF)) {
             properties_change_mode(PROPMODE_FILTER_SELECT);
         }
@@ -98,20 +102,24 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
             render_rect(renderer, 2, i * 24 + 48, w - 4, 24, 0x303030FF);
             render_rect(renderer, 3, i * 24 + 49, w - 6, 22, 0x404040FF);
             render_text(renderer, 6, i * 24 + 54, current_clip->filters[i].name);
+            button_tooltip("Remove");
             if (button_icon(renderer, icon_remove, x + w - 20, y + i * 24 + 52, 16, 16, 0x505050FF)) {
                 current_clip->filters.erase(current_clip->filters.begin() + i);
                 i--;
                 continue;
             }
+            button_tooltip("Settings");
             if (button_icon(renderer, icon_edit, x + w - 46, y + i * 24 + 52, 16, 16, 0x505050FF)) {
                 current_filter = &current_clip->filters[i];
                 properties_change_mode(PROPMODE_FILTER_CONFIG);
             }
+            button_tooltip("Move Up");
             if (button_icon(renderer, icon_up, x + w - 72, y + i * 24 + 52, 16, 16, 0x505050FF, i == 0)) {
                 Filter temp = current_clip->filters[i];
                 current_clip->filters[i] = current_clip->filters[i - 1];
                 current_clip->filters[i - 1] = temp;
             }
+            button_tooltip("Move Down");
             if (button_icon(renderer, icon_down, x + w - 96, y + i * 24 + 52, 16, 16, 0x505050FF, i == current_clip->filters.size() - 1)) {
                 Filter temp = current_clip->filters[i];
                 current_clip->filters[i] = current_clip->filters[i + 1];
@@ -131,6 +139,7 @@ int propmode_filter_select(SDL_Renderer* renderer, int x, int y, int w, int h) {
         render_rect(renderer, 2, i * 24 + 24, w - 4, 24, 0x303030FF);
         render_rect(renderer, 3, i * 24 + 25, w - 6, 22, 0x404040FF);
         render_text(renderer, 6, i * 24 + 30, available_filters[i].name);
+        button_tooltip("Add Filter");
         if (button_icon(renderer, icon_add, x + w - 20, y + i * 24 + 28, 16, 16, 0x505050FF)) {
             current_clip->filters.push_back(available_filters[i]);
             properties_change_mode(PROPMODE_CLIP_SETTINGS);

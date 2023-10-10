@@ -101,6 +101,12 @@ void render_gui(SDL_Renderer* renderer) {
     }
 }
 
+std::string next_tooltip = "";
+
+void button_tooltip(std::string btn_tooltip) {
+    next_tooltip = btn_tooltip;
+}
+
 bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color) {
     return button_icon(renderer, icon, x, y, w, h, color, false);
 }
@@ -117,6 +123,7 @@ bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w,
     int a = color & 0xFF;
     bool clicked = false;
     if (mouseX >= x - 2 && mouseY >= y - 2 && mouseX < x + w + 4 && mouseY < y + h + 4 && !locked) {
+        tooltip = next_tooltip;
         SDL_SetRenderDrawColor(renderer, r, g, b, a);
         SDL_RenderFillRect(renderer, &rect);
         if (mousePressed) {
@@ -124,6 +131,7 @@ bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w,
             clicked = true;
         }
     }
+    next_tooltip = "";
     rect.x += 2;
     rect.y += 2;
     rect.w -= 4;

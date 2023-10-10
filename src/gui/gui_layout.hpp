@@ -60,6 +60,7 @@ extern GuiLayoutSplitter* grabbedSplitter;
 extern GuiPopup* current_popup;
 
 extern void render_gui(SDL_Renderer* renderer);
+extern void button_tooltip(std::string btn_tooltip);
 extern bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color);
 extern bool button_icon(SDL_Renderer* renderer, SDL_Texture* icon, int x, int y, int w, int h, int color, bool locked);
 extern void open_popup(int x, int y, int w, int h, GuiWindowRenderer renderer);

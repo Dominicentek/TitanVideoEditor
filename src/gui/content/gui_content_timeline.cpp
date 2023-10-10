@@ -155,7 +155,7 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
     if (dragging_frame) current_frame = mouseFramePos;
     if (current_frame < 0) current_frame = 0;
     if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + h && grabbedClip == nullptr) {
-        if (is_key_held(SDLK_LSHIFT)) position += scale * 3 * mouseScroll;
+        if (is_key_held(SDLK_LSHIFT)) position += scale * 5 * mouseScroll;
         else if (mouseScroll != 0) {
             scale += mouseScroll;
             if (scale > 20) scale = 20;

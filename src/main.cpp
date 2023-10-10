@@ -37,6 +37,8 @@ SDL_Cursor* next_cursor = nullptr;
 std::vector<SDL_Keycode> heldKeys = {};
 std::vector<SDL_Keycode> pressedKeys = {};
 
+std::string tooltip = "";
+
 bool is_key_pressed(SDL_Keycode code) {
     return std::find(pressedKeys.begin(), pressedKeys.end(), code) != pressedKeys.end();
 }
@@ -46,6 +48,7 @@ bool is_key_held(SDL_Keycode code) {
 }
 
 bool update() {
+    tooltip = "";
     next_cursor = cursor_default;
     int mouseState = SDL_GetMouseState(&mouseX, &mouseY);
     mouseDown = mouseState & SDL_BUTTON_LMASK;
@@ -78,6 +81,16 @@ bool update() {
 
 void render(SDL_Renderer* renderer) {
     render_gui(renderer);
+    if (tooltip != "") {
+        int x = 8;
+        int y = 8;
+        int w = 8 + tooltip.length() * 7;
+        int h = 8 + 14;
+        if (mouseX > windowWidth - x - w - 8) x = x * -1 - w;
+        if (mouseY > windowHeight - y - h - 8) y = y * -1 - h;
+        render_rect(renderer, mouseX + x, mouseY + y, w, h, 0x0000007F);
+        render_text(renderer, mouseX + x + 4, mouseY + y + 4, tooltip);
+    }
 }
 
 bool check_ffmpeg() {
@@ -106,13 +119,13 @@ bool check_ffmpeg() {
         if (i != 0) missing += ", ";
         missing += dependencies[i];
     }
-    pfd::message("Titan Video Editor", "Error\n\nCannot find FFmpeg executables in PATH\n\nDependencies missing:\n" + missing, pfd::choice::ok, pfd::icon::error);
+    pfd::message("Titan Video Editor", "Cannot find FFmpeg executables in PATH\n\nDependencies missing:\n" + missing, pfd::choice::ok, pfd::icon::error);
     return true;
 }
 
 int main(int argc, char** argv) {
     if (check_ffmpeg()) return 1;
-    SDL_Window* window = SDL_CreateWindow("Titan Video Editor", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
+    SDL_Window* window = SDL_CreateWindow("Titan Video Editor - Alpha", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
     SDL_SetWindowResizable(window, SDL_TRUE);
     currentWindow = window;
     Uint32 render_flags = SDL_RENDERER_ACCELERATED;
