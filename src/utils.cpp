@@ -172,6 +172,16 @@ float map(float x, float srcMin, float srcMax, float dstMin, float dstMax) {
     return (x - srcMin) / (srcMax - srcMin) * (dstMax - dstMin) + dstMin;
 }
 
+int min(int a, int b) {
+    if (a < b) return a;
+    return b;
+}
+
+int max(int a, int b) {
+    if (a > b) return a;
+    return b;
+}
+
 std::string format_string(std::string format, ...) {
     va_list args;
     char buf[1024];

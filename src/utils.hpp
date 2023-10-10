@@ -11,6 +11,8 @@ std::string exec_command(std::string command);
 SDL_Surface* CreateSdlSurfaceFromPng(void* data);
 SDL_Texture* create_texture(SDL_Renderer* renderer, void* data);
 float map(float x, float srcMin, float srcMax, float dstMin, float dstMax);
+int min(int a, int b);
+int max(int a, int b);
 std::string format_string(std::string format, ...);
 
 #endif

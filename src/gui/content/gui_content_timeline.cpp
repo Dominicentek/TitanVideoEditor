@@ -63,6 +63,8 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
     int mouseTrackPos = -1;
     lock_positions.clear();
     lock_positions.push_back(current_frame);
+    grabbed_media_position = mouseFramePos;
+    if (grabbed_media_position < 0) grabbed_media_position = 0;
     for (int i = timer_scroll; i < tracks.size(); i++) {
         Track track = tracks[i];
         for (int j = 0; j < track.clips.size(); j++) {
@@ -111,7 +113,16 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
         }
         render_rect(renderer, 0, 24 + (i - timer_scroll) * 32 + 31, w, 2, 0x181818FF);
         if (mouseX >= x && mouseY >= y + 24 + (i - timer_scroll) * 32 && mouseY >= y + 24 && mouseX < x + w && mouseY < y + 24 + (i - timer_scroll) * 32 + 32) {
-            if (grabbed_media_type == tracks[i].type) grabbed_media_track_index = i;
+            if (grabbed_media_type == tracks[i].type) {
+                bool unobstructed = true;
+                for (const auto& c : tracks[i].clips) {
+                    if (max(c.pos, grabbed_media_position) <= min(c.pos + c.duration, grabbed_media_position + current_media_length)) {
+                        unobstructed = false;
+                        break;
+                    }
+                }
+                if (unobstructed) grabbed_media_track_index = i;
+            }
             mouseTrackPos = i;
         }
         if (grabbed_media_track_index == i && mouseDown && grabbed_media != "") {
@@ -140,8 +151,6 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
         if (scale > 16 && frame % (30 * 5) != 0) continue;
         render_text(renderer, i * spaceBetweenFrames, 3, std::to_string(frame / 30));
     }
-    grabbed_media_position = mouseFramePos;
-    if (grabbed_media_position < 0) grabbed_media_position = 0;
     if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + 24 && mousePressed) dragging_frame = true;
     if (dragging_frame) current_frame = mouseFramePos;
     if (current_frame < 0) current_frame = 0;
@@ -156,32 +165,63 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
         }
     }
     if (position < 0) position = 0;
+    if (mouseTrackPos == -1) {
+        if (mouseY < windowHeight * main_splitter_pos + 32) mouseTrackPos = 0;
+        else mouseTrackPos = tracks.size() - 1;
+    }
     if (grabbedClip != nullptr) {
         if (grabType == GRAB_TYPE_LEFT_MOVE) {
             next_cursor = cursor_clip_left;
             int prev = grabbedClip->pos;
             grabbedClip->pos = get_locking_position(mouseFramePos, mouseX - x);
             grabbedClip->trim += grabbedClip->pos - prev;
-            grabbedClip->duration -= grabbedClip->pos - prev;
             if (grabbedClip->duration < 1) {
                 grabbedClip->pos -= -grabbedClip->duration + 1;
                 grabbedClip->trim += -grabbedClip->duration + 1;
                 grabbedClip->duration = 1;
             }
+            Clip* obstructClip = nullptr;
+            for (int i = 0; i < tracks[grabbedClipTrackIndex].clips.size(); i++) {
+                Clip* c = &tracks[grabbedClipTrackIndex].clips[i];
+                if (c == grabbedClip) continue;
+                if (max(c->pos, grabbedClip->pos) <= min(c->pos + c->duration, grabbedClip->pos + grabbedClip->duration)) {
+                    obstructClip = c;
+                    break;
+                }
+            }
+            if (obstructClip != nullptr) grabbedClip->pos = obstructClip->pos + obstructClip->duration;
+            if (grabbedClip->pos < 0) grabbedClip->pos = 0;
+            grabbedClip->duration += prev - grabbedClip->pos;
         }
         if (grabType == GRAB_TYPE_RIGHT_MOVE) {
             next_cursor = cursor_clip_right;
             grabbedClip->duration = get_locking_position(mouseFramePos, mouseX - x) - grabbedClip->pos;
             if (grabbedClip->duration < 1) grabbedClip->duration = 1;
+            Clip* obstructClip = nullptr;
+            for (int i = 0; i < tracks[grabbedClipTrackIndex].clips.size(); i++) {
+                Clip* c = &tracks[grabbedClipTrackIndex].clips[i];
+                if (c == grabbedClip) continue;
+                if (max(c->pos, grabbedClip->pos) <= min(c->pos + c->duration, grabbedClip->pos + grabbedClip->duration)) {
+                    obstructClip = c;
+                    break;
+                }
+            }
+            if (obstructClip != nullptr) grabbedClip->duration = obstructClip->pos - grabbedClip->pos;
         }
         if (grabType == GRAB_TYPE_MOVE) {
             next_cursor = cursor_move;
             grabbedClip->pos = get_locking_position(mouseFramePos - clipGrabOffset, mouseX - clipGrabOffset * spaceBetweenFrames - x);
             grabbedClip->pos = get_locking_position(grabbedClip->pos + grabbedClip->duration, mouseX + (grabbedClip->duration - clipGrabOffset) * spaceBetweenFrames - x) - grabbedClip->duration;
-            if (grabbedClip->pos < 0) grabbedClip->pos = 0;
-            if (mouseTrackPos != -1) {
-                if (tracks[grabbedClipTrackIndex].type == tracks[mouseTrackPos].type && grabbedClipTrackIndex != mouseTrackPos) {
-                    Clip clip = *grabbedClip;
+            if (tracks[grabbedClipTrackIndex].type == tracks[mouseTrackPos].type && grabbedClipTrackIndex != mouseTrackPos) {
+                Clip clip = *grabbedClip;
+                bool unobstructed = true;
+                for (const auto& c : tracks[mouseTrackPos].clips) {
+                    if (max(c.pos, clip.pos) <= min(c.pos + c.duration, clip.pos + clip.duration)) {
+                        unobstructed = false;
+                        break;
+                    }
+                }
+                if (unobstructed) {
                     int index = tracks[mouseTrackPos].clips.size();
                     tracks[grabbedClipTrackIndex].clips.erase(tracks[grabbedClipTrackIndex].clips.begin() + grabbedClipIndex);
                     tracks[mouseTrackPos].clips.push_back(clip);
@@ -190,8 +230,22 @@ void gui_content_timeline(SDL_Renderer* renderer, int x, int y, int w, int h) {
                     grabbedClip = &tracks[mouseTrackPos].clips[index];
                 }
             }
+            if (grabbedClip->pos < 0) grabbedClip->pos = 0;
+            Clip* obstructClip = nullptr;
+            for (int i = 0; i < tracks[grabbedClipTrackIndex].clips.size(); i++) {
+                Clip* c = &tracks[grabbedClipTrackIndex].clips[i];
+                if (c == grabbedClip) continue;
+                if (max(c->pos, grabbedClip->pos) <= min(c->pos + c->duration, grabbedClip->pos + grabbedClip->duration)) {
+                    obstructClip = c;
+                    break;
+                }
+            }
+            if (obstructClip != nullptr) {
+                bool left = grabbedClip->pos < obstructClip->pos;
+                if (left) grabbedClip->pos = obstructClip->pos - grabbedClip->duration;
+                if (!left || grabbedClip->pos < 0) grabbedClip->pos = obstructClip->pos + obstructClip->duration;
+            }
         }
-        if (grabbedClip->pos < 0) grabbedClip->pos = 0;
     }
     if (!mouseDown) {
         dragging_frame = false;
