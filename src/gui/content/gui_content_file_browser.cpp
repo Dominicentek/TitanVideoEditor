@@ -8,6 +8,10 @@
 #include <filesystem>
 #include <algorithm>
 
+std::vector<std::filesystem::path> dir_stack = {};
+std::vector<std::string> files = {};
+int file_scroll = 0;
+
 std::vector<std::filesystem::path> get_path(std::filesystem::path path) {
     std::vector<std::filesystem::path> dirs = {};
     path = std::filesystem::absolute(path);
@@ -20,12 +24,9 @@ std::vector<std::filesystem::path> get_path(std::filesystem::path path) {
     return dirs;
 }
 
-std::vector<std::filesystem::path> dir_stack = {};
-int file_scroll = 0;
-
-void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h) {
+void rescan_directories() {
     if (dir_stack.empty()) dir_stack = get_path(std::filesystem::current_path());
-    std::vector<std::string> files = {};
+    files.clear();
     std::vector<std::string> dirs = {};
     if (dir_stack.size() > 1) dirs.push_back("../");
     for (auto file : std::filesystem::directory_iterator(dir_stack[dir_stack.size() - 1])) {
@@ -47,6 +48,10 @@ void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h
     for (std::string dir : dirs) {
         files.insert(files.begin(), dir);
     }
+}
+
+void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h) {
+    if (dir_stack.empty()) rescan_directories();
     int height = files.size() * 20 + 4;
     if (mouseX >= x && mouseY >= y && mouseX < x + w && mouseY < y + h) file_scroll += mouseScroll * 20;
     if (file_scroll > height - h) file_scroll = height - h;
@@ -72,6 +77,7 @@ void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h
                     current_media_length = metadata.first;
                     current_streams = metadata.second;
                 }
+                rescan_directories();
             }
         }
         render_texture(renderer, tex, 4, i * 20 + 4 - file_scroll, 16, 16);
