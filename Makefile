@@ -12,7 +12,7 @@ TOOLS_SRC := $(shell find $(TOOLS_SRCDIR) -type f -name "*.cpp")
 TOOLS_EXEC := $(patsubst $(TOOLS_SRCDIR)/%.cpp,$(TOOLS_BINDIR)/%,$(TOOLS_SRC))
 CFLAGS = -Wall -g -I src
 LDFLAGS :=
-LIBS =
+LIBS :=
 
 ifeq ($(OS),Windows_NT)
 	CFLAGS += -DWINDOWS
@@ -21,21 +21,14 @@ else
 	LIBS += -lSDL2 -lSDL2main -lpng
 endif
 
-.PHONY: all clean compile-tools run-tools
+.PHONY: all clean compile-tools run-tools compile
 
-all: compile-tools $(EXECUTABLE)
+all:
+	@make compile-tools --silent
+	@make run-tools --silent
+	@make compile --silent
 
-$(EXECUTABLE): $(OBJS)
-	@printf "\033[1m\033[32mLinking \033[36m$(EXECUTABLE)\033[0m\n"
-	@mkdir -p $(BIN_DIR)
-	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@printf "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m\n"
-	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) -c $< -o $@
-
-compile-tools: $(TOOLS_EXEC) run-tools
+compile-tools: $(TOOLS_EXEC)
 
 $(TOOLS_BINDIR)/%: $(TOOLS_SRCDIR)/%.cpp
 	@printf "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m\n"
@@ -47,6 +40,17 @@ run-tools:
 		printf "\033[1m\033[32mRunning tool \033[36m$$tool\033[0m\n"; \
 		$$tool; \
 	done
+
+compile: $(EXECUTABLE)
+$(EXECUTABLE): $(OBJS)
+	@printf "\033[1m\033[32mLinking \033[36m$(EXECUTABLE)\033[0m\n"
+	@mkdir -p $(BIN_DIR)
+	@$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
+
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@printf "\033[1m\033[32mCompiling \033[36m$< \033[32m-> \033[36m$@\033[0m\n"
+	@mkdir -p $(dir $@)
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -rf $(BIN_DIR)
