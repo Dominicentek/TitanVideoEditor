@@ -9,14 +9,14 @@ SDL_Cursor* cursor_default = nullptr;
 SDL_Cursor* cursor_move = nullptr;
 SDL_Cursor* cursor_move_horizontal = nullptr;
 SDL_Cursor* cursor_move_vertical = nullptr;
-SDL_Cursor* cursor_clip_left = nullptr;
 SDL_Cursor* cursor_clip_right = nullptr;
+SDL_Cursor* cursor_clip_left = nullptr;
 
 void init_cursors() {
     cursor_default = SDL_GetDefaultCursor();
     cursor_move = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEALL);
     cursor_move_horizontal = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZEWE);
     cursor_move_vertical = SDL_CreateSystemCursor(SDL_SYSTEM_CURSOR_SIZENS);
-    cursor_clip_left = SDL_CreateColorCursor(CreateSdlSurfaceFromPng(images_cursor_clip_left_png), 8, 8);
     cursor_clip_right = SDL_CreateColorCursor(CreateSdlSurfaceFromPng(images_cursor_clip_right_png), 8, 8);
+    cursor_clip_left = SDL_CreateColorCursor(CreateSdlSurfaceFromPng(images_cursor_clip_left_png), 8, 8);
 }

@@ -28,6 +28,7 @@ extern TrackType grabbed_media_type;
 
 extern void properties_change_mode(PropertiesMode mode);
 extern PropertiesMode properties_current_mode();
+extern bool properties_is_in_clip_editing_mode();
 
 extern void gui_content_properties(SDL_Renderer* renderer, int x, int y, int w, int h);
 extern void gui_content_file_browser(SDL_Renderer* renderer, int x, int y, int w, int h);

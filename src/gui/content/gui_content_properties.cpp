@@ -88,6 +88,7 @@ int propmode_track_selector(SDL_Renderer* renderer, int x, int y, int w, int h) 
 
 int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
     if (button_icon(renderer, icon_remove, x + 4, y + 4, 16, 16, 0x303030FF)) {
+        undo_step();
         tracks[current_clip_track_index].clips.erase(tracks[current_clip_track_index].clips.begin() + current_clip_index);
         properties_change_mode(PROPMODE_NONE_SELECTED);
     }
@@ -104,6 +105,7 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
             render_text(renderer, 6, i * 24 + 54, current_clip->filters[i].name);
             button_tooltip("Remove");
             if (button_icon(renderer, icon_remove, x + w - 20, y + i * 24 + 52, 16, 16, 0x505050FF)) {
+                undo_step();
                 current_clip->filters.erase(current_clip->filters.begin() + i);
                 i--;
                 continue;
@@ -115,12 +117,14 @@ int propmode_clip_settings(SDL_Renderer* renderer, int x, int y, int w, int h) {
             }
             button_tooltip("Move Up");
             if (button_icon(renderer, icon_up, x + w - 72, y + i * 24 + 52, 16, 16, 0x505050FF, i == 0)) {
+                undo_step();
                 Filter temp = current_clip->filters[i];
                 current_clip->filters[i] = current_clip->filters[i - 1];
                 current_clip->filters[i - 1] = temp;
             }
             button_tooltip("Move Down");
             if (button_icon(renderer, icon_down, x + w - 96, y + i * 24 + 52, 16, 16, 0x505050FF, i == current_clip->filters.size() - 1)) {
+                undo_step();
                 Filter temp = current_clip->filters[i];
                 current_clip->filters[i] = current_clip->filters[i + 1];
                 current_clip->filters[i + 1] = temp;
@@ -141,6 +145,7 @@ int propmode_filter_select(SDL_Renderer* renderer, int x, int y, int w, int h) {
         render_text(renderer, 6, i * 24 + 30, available_filters[i].name);
         button_tooltip("Add Filter");
         if (button_icon(renderer, icon_add, x + w - 20, y + i * 24 + 28, 16, 16, 0x505050FF)) {
+            undo_step();
             current_clip->filters.push_back(available_filters[i]);
             properties_change_mode(PROPMODE_CLIP_SETTINGS);
         }
@@ -162,7 +167,10 @@ int propmode_filter_config(SDL_Renderer* renderer, int x, int y, int w, int h) {
             bool value = property->values[0] != 0;
             int color = 0x303030FF;
             if (mouseX >= x + w - 4 - 20 && mouseX < x + w - 4 && mouseY >= y + i * 24 + 26 && mouseY < y + i * 24 + 46) {
-                if (mousePressed) value = !value;
+                if (mousePressed) {
+                    undo_step();
+                    value = !value;
+                }
                 color = 0x404040FF;
             }
             render_rect(renderer, w - 24, i * 24 + 26, 20, 20, color);
@@ -180,6 +188,7 @@ int propmode_filter_config(SDL_Renderer* renderer, int x, int y, int w, int h) {
             int color = 0x303030FF;
             if (mouseX >= x + w - 7 - 128 + pos && mouseX < x + w - 1 - 128 + pos && mouseY >= y + i * 24 + 26 && mouseY < y + i * 24 + 46) {
                 if (mousePressed) {
+                    undo_step();
                     grabbed_slider.grabbed = true;
                     grabbed_slider.integer = property->type == FILTERPROP_INT;
                     grabbed_slider.min = property->values[1];
@@ -244,4 +253,12 @@ void properties_change_mode(PropertiesMode mode) {
 
 PropertiesMode properties_current_mode() {
     return properties_mode;
+}
+
+bool properties_is_in_clip_editing_mode() {
+    return (
+        properties_mode == PROPMODE_CLIP_SETTINGS ||
+        properties_mode == PROPMODE_FILTER_SELECT ||
+        properties_mode == PROPMODE_FILTER_CONFIG
+    );
 }

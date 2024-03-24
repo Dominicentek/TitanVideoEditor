@@ -125,6 +125,7 @@ bool check_ffmpeg() {
 
 int main(int argc, char** argv) {
     if (check_ffmpeg()) return 1;
+    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "0");
     SDL_Window* window = SDL_CreateWindow("Titan Video Editor - Alpha", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, 0);
     SDL_SetWindowResizable(window, SDL_TRUE);
     currentWindow = window;

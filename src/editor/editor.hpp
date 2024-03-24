@@ -117,6 +117,12 @@ extern std::vector<Track> tracks;
 extern int current_frame;
 extern bool timeline_locking;
 
+extern bool can_undo();
+extern bool can_redo();
+extern void undo();
+extern void redo();
+extern void undo_step();
+
 extern std::pair<int, std::vector<TrackType>> get_media_streams_and_duration(std::filesystem::path path);
 extern std::string generate_filter(Clip* clip);
 
