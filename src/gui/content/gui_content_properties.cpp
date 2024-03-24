@@ -52,6 +52,10 @@ int propmode_track_selector(SDL_Renderer* renderer, int x, int y, int w, int h) 
     snprintf(buffer, 16, "%i:%02i:%02i;%02i", hours, minutes, seconds, frame);
     buffer[15] = 0;
     std::string text = std::string(buffer);
+    if (current_streams.size() == 0) {
+        std::string text = "No streams detected";
+        render_text(renderer, w / 2 - text.size() * 3.5f, 24, text);
+    }
     for (int i = 0; i < current_streams.size(); i++) {
         int yPos = y + 24 + i * 32 - properties_scroll;
         if (mouseX >= x && mouseY >= yPos && mouseY >= y + 24 && mouseX < x + w && mouseY < yPos + 32) {
